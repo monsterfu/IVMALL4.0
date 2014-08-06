@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>0EDC7B3D-33DD-44ED-85E2-121C47366579</string>
+	<key>IDESourceControlProjectName</key>
+	<string>IVMallHD</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>4C2DDC50-2A92-4A94-B6C4-62135679BE1A</key>
+		<string>http://ottsvn.smit.com.cn/svn/iVmall</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>trunk/iVmallHD/iVmall/iOS/iVmall4/IVMall4.0/IVMallHD.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>4C2DDC50-2A92-4A94-B6C4-62135679BE1A</key>
+		<string>../../../../../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectRepositoryRootDictionary</key>
+	<dict>
+		<key>4C2DDC50-2A92-4A94-B6C4-62135679BE1A</key>
+		<string>http://ottsvn.smit.com.cn/svn/iVmall</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>http://ottsvn.smit.com.cn/svn/iVmall/trunk/iVmallHD/iVmall/iOS/iVmall4/IVMall4.0/IVMallHD.xcodeproj</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>4C2DDC50-2A92-4A94-B6C4-62135679BE1A</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryBranchesRelativeLocationKey</key>
+			<string>branches</string>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.subversion</string>
+			<key>IDESourceControlRepositoryTagsRelativeLocationKey</key>
+			<string>tags</string>
+			<key>IDESourceControlRepositoryTrunkRelativeLocationKey</key>
+			<string>trunk</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>4C2DDC50-2A92-4A94-B6C4-62135679BE1A</string>
+			<key>IDESourceControlWCCName</key>
+			<string>iVmall</string>
+		</dict>
+	</array>
+</dict>
+</plist>

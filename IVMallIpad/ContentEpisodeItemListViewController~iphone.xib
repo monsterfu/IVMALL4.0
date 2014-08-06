@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="5056" systemVersion="13D65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
+    <dependencies>
+        <deployment defaultVersion="1536" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ContentEpisodeItemListViewController">
+            <connections>
+                <outlet property="TVBackgroundImageView" destination="zKd-zo-Zm4" id="W1J-BS-BD4"/>
+                <outlet property="cloudImageView" destination="oWK-N8-TPO" id="FyX-xr-fxG"/>
+                <outlet property="collectionButton" destination="EAW-v0-hZA" id="Rfu-ra-v7X"/>
+                <outlet property="collectionCountLabel" destination="h6e-J6-KGK" id="oTt-ip-Mnn"/>
+                <outlet property="contentCollectionView" destination="2hy-cf-1U8" id="x1h-ru-tjc"/>
+                <outlet property="downView" destination="Ulk-eq-wBh" id="akb-g6-UnJ"/>
+                <outlet property="eposideScrollerView" destination="mam-Aw-Rgo" id="A4C-cF-9j1"/>
+                <outlet property="exitButton" destination="Cco-Gv-h9i" id="rru-bW-AEq"/>
+                <outlet property="headBgView" destination="kgx-JM-hAr" id="jvm-lS-6wl"/>
+                <outlet property="headImage" destination="Ifq-ez-rxS" id="8PS-KO-gD4"/>
+                <outlet property="langButton1" destination="UOa-Y9-UMX" id="H2K-fC-bSo"/>
+                <outlet property="langButton2" destination="hEh-8G-BoA" id="5jP-jp-Ort"/>
+                <outlet property="moreButton" destination="mWf-uv-Fbw" id="Hq5-jV-75B"/>
+                <outlet property="playButton" destination="44Z-6Q-Akt" id="o3T-EW-AAv"/>
+                <outlet property="playCountLabel" destination="3eD-cE-9bz" id="4yI-ys-ih1"/>
+                <outlet property="scrollView" destination="8ge-YT-1xO" id="KQv-rL-lWF"/>
+                <outlet property="textView" destination="XVo-rE-fdG" id="za6-dX-5Wr"/>
+                <outlet property="tipsLabel" destination="HUe-3c-5hq" id="Dj7-tX-lai"/>
+                <outlet property="tipsView" destination="Kk8-Ph-pEV" id="Pgp-ZZ-nl9"/>
+                <outlet property="titleLabel" destination="Gnh-CK-H1O" id="NzP-e2-aix"/>
+                <outlet property="upView" destination="0db-Kg-r24" id="1tg-Co-utH"/>
+                <outlet property="view" destination="iN0-l3-epB" id="We8-Lg-k9R"/>
+                <outletCollection property="expandViews" destination="3eD-cE-9bz" id="MZQ-mJ-q5R"/>
+                <outletCollection property="expandViews" destination="h6e-J6-KGK" id="8zZ-vT-61q"/>
+                <outletCollection property="expandViews" destination="EAW-v0-hZA" id="hqn-Y2-3Ef"/>
+                <outletCollection property="expandViews" destination="UOa-Y9-UMX" id="hSx-iG-cyB"/>
+                <outletCollection property="expandViews" destination="hEh-8G-BoA" id="e7S-ud-a5Y"/>
+                <outletCollection property="expandViews" destination="44Z-6Q-Akt" id="TsR-84-exm"/>
+                <outletCollection property="expandViews" destination="oWK-N8-TPO" id="HfQ-yF-gKO"/>
+                <outletCollection property="expandViews" destination="Ulk-eq-wBh" id="cjb-dm-Yrt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="480" height="320"/>
+            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" id="8ge-YT-1xO">
+                    <rect key="frame" x="50" y="30" width="380" height="260"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <view contentMode="scaleToFill" id="0db-Kg-r24">
+                            <rect key="frame" x="0.0" y="0.0" width="380" height="150"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                            <subviews>
+                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Gnh-CK-H1O">
+                                    <rect key="frame" x="110" y="10" width="160" height="20"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" alpha="0.80000001192092896" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" editable="NO" selectable="NO" id="XVo-rE-fdG">
+                                    <rect key="frame" x="104" y="25" width="240" height="30"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                </textView>
+                                <button opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="mWf-uv-Fbw">
+                                    <rect key="frame" x="291" y="60" width="70" height="30"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                    <inset key="titleEdgeInsets" minX="-10" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                    <state key="normal" title="更多介绍" backgroundImage="button_c1.png">
+                                        <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                    </state>
+                                    <state key="highlighted" backgroundImage="button_c2.png">
+                                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    </state>
+                                    <connections>
+                                        <action selector="moreButtonTouch:" destination="-1" eventType="touchUpInside" id="WZr-sz-Vaa"/>
+                                    </connections>
+                                </button>
+                                <view contentMode="scaleToFill" id="kgx-JM-hAr">
+                                    <rect key="frame" x="23" y="25" width="78" height="100"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                    <subviews>
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="Ifq-ez-rxS">
+                                            <rect key="frame" x="4" y="5" width="70" height="90"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                        </imageView>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                </view>
+                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.60000002384185791" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="播放次数：" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="3eD-cE-9bz">
+                                    <rect key="frame" x="108" y="60" width="80" height="12"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.60000002384185791" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="收藏次数：" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="h6e-J6-KGK">
+                                    <rect key="frame" x="193" y="60" width="80" height="11"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <button opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="44Z-6Q-Akt">
+                                    <rect key="frame" x="108" y="92" width="70" height="30"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                    <inset key="titleEdgeInsets" minX="30" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                    <state key="normal" title="播放" backgroundImage="button_b2.png">
+                                        <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                    </state>
+                                    <state key="highlighted" backgroundImage="button_b4.png">
+                                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    </state>
+                                    <connections>
+                                        <action selector="playButtonTouch:" destination="-1" eventType="touchUpInside" id="9xc-of-toq"/>
+                                    </connections>
+                                </button>
+                                <button opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="EAW-v0-hZA">
+                                    <rect key="frame" x="200" y="92" width="70" height="30"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                    <inset key="titleEdgeInsets" minX="30" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                    <state key="normal" title="收藏" backgroundImage="button_b3.png">
+                                        <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                    </state>
+                                    <state key="highlighted" backgroundImage="button_b1.png">
+                                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    </state>
+                                    <connections>
+                                        <action selector="collectionButtonTouch:" destination="-1" eventType="touchUpInside" id="2jr-V1-fhx"/>
+                                    </connections>
+                                </button>
+                                <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Bubble2.png" id="Kk8-Ph-pEV">
+                                    <rect key="frame" x="108" y="74" width="160" height="20"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                </imageView>
+                                <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="HUe-3c-5hq">
+                                    <rect key="frame" x="120" y="74" width="150" height="20"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="0.80000000000000004" colorSpace="calibratedRGB"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <button opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="UOa-Y9-UMX">
+                                    <rect key="frame" x="24" y="129" width="47" height="18"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                    <inset key="titleEdgeInsets" minX="0.0" minY="-6" maxX="0.0" maxY="0.0"/>
+                                    <state key="normal" title="中文剧集">
+                                        <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                    </state>
+                                    <state key="highlighted" backgroundImage="tab_cloud.png"/>
+                                </button>
+                                <button opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="hEh-8G-BoA">
+                                    <rect key="frame" x="81" y="129" width="47" height="18"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                    <inset key="titleEdgeInsets" minX="0.0" minY="-6" maxX="0.0" maxY="0.0"/>
+                                    <state key="normal" title="英文剧集">
+                                        <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                    </state>
+                                    <state key="selected" backgroundImage="tab_cloud.png"/>
+                                    <state key="highlighted">
+                                        <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                    </state>
+                                </button>
+                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="cloud.png" id="oWK-N8-TPO">
+                                    <rect key="frame" x="24" y="140" width="47" height="7"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                </imageView>
+                            </subviews>
+                            <color key="backgroundColor" red="0.94509803920000002" green="1" blue="0.8980392157" alpha="1" colorSpace="calibratedRGB"/>
+                        </view>
+                        <view contentMode="scaleToFill" id="Ulk-eq-wBh">
+                            <rect key="frame" x="0.0" y="150" width="380" height="110"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                            <subviews>
+                                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="mam-Aw-Rgo">
+                                    <rect key="frame" x="25" y="5" width="340" height="20"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                </scrollView>
+                                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" minimumZoomScale="0.0" maximumZoomScale="0.0" dataMode="none" id="2hy-cf-1U8">
+                                    <rect key="frame" x="25" y="30" width="330" height="80"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="5" id="Djr-0N-8MQ">
+                                        <size key="itemSize" width="80" height="25"/>
+                                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                    </collectionViewFlowLayout>
+                                    <cells/>
+                                    <connections>
+                                        <outlet property="dataSource" destination="-1" id="FTU-8R-Eh1"/>
+                                        <outlet property="delegate" destination="-1" id="ucC-2D-Qir"/>
+                                    </connections>
+                                </collectionView>
+                            </subviews>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        </view>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
+                </scrollView>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="tv_bg.png" id="zKd-zo-Zm4">
+                    <rect key="frame" x="40" y="0.0" width="400" height="320"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                </imageView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="Cco-Gv-h9i" userLabel="closeBtn">
+                    <rect key="frame" x="46" y="30" width="30" height="30"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                    <inset key="contentEdgeInsets" minX="8" minY="8" maxX="8" maxY="8"/>
+                    <state key="normal" backgroundImage="close.png">
+                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                    <state key="highlighted" backgroundImage="close_sel.png"/>
+                    <connections>
+                        <action selector="closeButtonTouch:" destination="-1" eventType="touchUpInside" id="HVa-hg-0CS"/>
+                    </connections>
+                </button>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
+            <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="Bubble2.png" width="543" height="73"/>
+        <image name="button_b1.png" width="201" height="103"/>
+        <image name="button_b2.png" width="201" height="103"/>
+        <image name="button_b3.png" width="201" height="103"/>
+        <image name="button_b4.png" width="201" height="103"/>
+        <image name="button_c1.png" width="236" height="100"/>
+        <image name="button_c2.png" width="236" height="100"/>
+        <image name="close.png" width="110" height="110"/>
+        <image name="close_sel.png" width="110" height="110"/>
+        <image name="cloud.png" width="169" height="26"/>
+        <image name="tab_cloud.png" width="174" height="72"/>
+        <image name="tv_bg.png" width="1598" height="1354"/>
+    </resources>
+</document>

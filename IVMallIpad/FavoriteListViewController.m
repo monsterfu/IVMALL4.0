@@ -47,6 +47,8 @@
 {
     [super viewDidLoad];
     
+    [self installNotificationObserver];
+    
     myNotWiFiView = [[NotWiFiView alloc]init];
     [myNotWiFiView setNotWiFiStyle:Dialog1NotWiFi];
     myNotWiFiView.delegate = self;
@@ -57,6 +59,12 @@
     myMBProgressHUD = [[MBProgressHUD alloc]initWithView:self.view];
     [self.view addSubview:myMBProgressHUD];
     myMBProgressHUD.labelText = @"正在获取数据";
+    
+    currentpage = 0;
+    list = nil;
+    list = [[NSMutableArray alloc]init];
+    [HttpRequest FavoriteListRequestToken:[AppDelegate App].myUserLoginMode.token page:currentpage rows:8 delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+    [myMBProgressHUD show:YES];
 
     // Do any additional setup after loading the view from its nib.
 }
@@ -67,15 +75,18 @@
         _closeBtn.frame = CGRectMake((iPhone5?89:46), 32, 30, 30);
     }
     [self.view bringSubviewToFront:_closeBtn];
+    if ([self.navigationController childViewControllers].count >2) {
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-18.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-19.png"] forState:UIControlStateHighlighted];
+    }else{
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close_sel.png"] forState:UIControlStateHighlighted];
+    }
 }
 
 -(void)viewDidAppear:(BOOL)animated
 {
-    currentpage = 0;
-    list = nil;
-    list = [[NSMutableArray alloc]init];
-    [HttpRequest FavoriteListRequestToken:[AppDelegate App].myUserLoginMode.token page:currentpage rows:8 delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-    [myMBProgressHUD show:YES];
+
 }
 
 -(void)GetErr:(ASIHTTPRequest *)request
@@ -193,8 +204,8 @@
         
     }else{
         contentListScrollView = [[UIScrollView alloc]init];
-        contentListScrollView.frame  = CGRectMake(20, 40, 350, 200);
-        [contentListScrollView setContentSize:CGSizeMake((350)*totalPage, 200)];
+        contentListScrollView.frame  = CGRectMake(20, 40, 350, 205);
+        [contentListScrollView setContentSize:CGSizeMake((350)*totalPage, 205)];
     }
     contentListScrollView.delegate = self;
     contentListScrollView.pagingEnabled = YES;
@@ -205,7 +216,7 @@
     [_bgView addSubview:contentListScrollView];
     
     for (int i=0; i<totalPage; i++) {
-        UIView* tempView = [[UIView alloc]initWithFrame:CGRectMake((iPad?700:350)*i, 0, (iPad?700:350), (iPad?430:200))];
+        UIView* tempView = [[UIView alloc]initWithFrame:CGRectMake((iPad?700:350)*i, 0, (iPad?700:350), (iPad?430:205))];
         tempView.backgroundColor = [UIColor clearColor];
         [tempView setTag:10000+i];
         [contentListScrollView addSubview:tempView];
@@ -235,7 +246,7 @@
         UIView* tempView = [nibViews objectAtIndex:0];
         [tempView setTag:(1000+i)];
         tempView.backgroundColor = [Commonality colorFromHexRGB:@"f2ffe5"];
-        tempView.layer.cornerRadius = (iPad?15:9);
+        tempView.layer.cornerRadius = (iPad?24:9);
         tempView.layer.borderColor = [Commonality colorFromHexRGB:@"42843d"].CGColor;
         tempView.layer.borderWidth = (iPad?3:1.8);
          tempView.exclusiveTouch = YES;
@@ -249,7 +260,7 @@
 
         
         UIImageView* subImageView = (UIImageView*)[tempView viewWithTag:100];
-        subImageView.layer.cornerRadius = (iPad?15:9);
+        subImageView.layer.cornerRadius = (iPad?18:9);
         subImageView.layer.masksToBounds = YES;
         [subImageView setImageWithURL:[NSURL URLWithString:tempFavoMod.contentImg] placeholderImage:[UIImage imageNamed:@"icon_250*352.png"]];
         if (iPad) {
@@ -267,9 +278,9 @@
             }
         }else{
             if (i<page*(NumberOfLine*2)+NumberOfLine) {
-                tempView.frame = CGRectMake((70+10)*(i-page*(NumberOfLine*2))+20, 0, 70, 82);
+                tempView.frame = CGRectMake((63 + 18)*(i-page*(NumberOfLine*2))+22, 0, 63, 84);
             }else{
-                tempView.frame = CGRectMake((70+10)*(i-page*(NumberOfLine*2)-NumberOfLine)+20, 100, 70, 82);
+                tempView.frame = CGRectMake((63 + 18)*(i-page*(NumberOfLine*2)-NumberOfLine)+22, 105, 63, 84);
             }
         }
     }
@@ -287,7 +298,7 @@
             FavoriteListModel* tempFavoMod = [list objectAtIndex:index];
             ContentEpisodeItemListViewController* myContentEpisodeItemListViewController = [[ContentEpisodeItemListViewController alloc]init];
             myContentEpisodeItemListViewController.episodeGuid = tempFavoMod.contentGuid;
-            myContentEpisodeItemListViewController.langs = tempFavoMod.lang;
+            myContentEpisodeItemListViewController.langs = tempFavoMod.langs;
             [self.navigationController pushViewController:myContentEpisodeItemListViewController animated:NO];
         }
     }else if([sender isKindOfClass:[UILongPressGestureRecognizer class]]){
@@ -302,7 +313,7 @@
                 FavoriteListModel* tempFavoMod = [list objectAtIndex:index];
                 ContentEpisodeItemListViewController* myContentEpisodeItemListViewController = [[ContentEpisodeItemListViewController alloc]init];
                 myContentEpisodeItemListViewController.episodeGuid = tempFavoMod.contentGuid;
-                myContentEpisodeItemListViewController.langs = tempFavoMod.lang;
+                myContentEpisodeItemListViewController.langs = tempFavoMod.langs;
                 [self.navigationController pushViewController:myContentEpisodeItemListViewController animated:NO];
             }
         }
@@ -339,6 +350,7 @@
 
 - (IBAction)close:(id)sender {
         [[AppDelegate App]click];
+        [self uninstallNotificationObserver];
     [self.navigationController popViewControllerAnimated:NO];
 }
 
@@ -347,6 +359,7 @@
 {
     
     _bgView.backgroundColor = [Commonality colorFromHexRGB:@"f6f6f6"];
+    
     currentpage = 0;
     list = nil;
     list = [[NSMutableArray alloc]init];
@@ -375,4 +388,27 @@
     subImageView.layer.borderWidth = 0;
 }
 
+-(void)dealloc
+{
+//    [self uninstallNotificationObserver];
+}
+
+#pragma mark observer
+-(void)installNotificationObserver
+{
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(doSth) name:NSNotificationCenterContentCollectAction object:nil];
+}
+-(void)uninstallNotificationObserver
+{
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
+}
+-(void)doSth
+{
+    currentpage = 0;
+    list = nil;
+    list = [[NSMutableArray alloc]init];
+    [HttpRequest FavoriteListRequestToken:[AppDelegate App].myUserLoginMode.token page:currentpage rows:8 delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+    [myMBProgressHUD show:YES];
+
+}
 @end

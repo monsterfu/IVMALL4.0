@@ -13,11 +13,13 @@
 #import "MBProgressHUD.h"
 #import "NotWiFiView.h"
 
-@interface UserDetailAndUpdateViewController : BoxBlurImageViewController<UITextFieldDelegate,UITextViewDelegate,UIGestureRecognizerDelegate,MBProgressHUDDelegate,MainViewRefershDelegate,UIScrollViewDelegate>
+@interface UserDetailAndUpdateViewController : BoxBlurImageViewController<UIActionSheetDelegate,UINavigationControllerDelegate,UIImagePickerControllerDelegate,UITextFieldDelegate,UITextViewDelegate,UIGestureRecognizerDelegate,MBProgressHUDDelegate,MainViewRefershDelegate,UIScrollViewDelegate>
 {
     BOOL _isPasswordFiledEdting;
     MBProgressHUD* myMBProgressHUD;
 }
+@property (nonatomic,strong)IBOutlet  UIImageView*  UserDefinedPhotoImageView;//用户自定义头像
+@property (nonatomic,strong)IBOutlet  UIButton* userDefinedPhotoButton;
 
 @property (strong, nonatomic) NSString * md5Password, *password;
 @property (strong, nonatomic) IBOutlet UIButton *closeBtn;
@@ -25,9 +27,15 @@
 - (IBAction)showUserInfoView:(id)sender;
 - (IBAction)showResetPasswordView:(id)sender;
 
-@property (strong, nonatomic) IBOutlet UIScrollView *scrollViewBg;
+@property (strong, nonatomic) IBOutlet UIScrollView *UserInfoScrollViewBg;
+@property (strong, nonatomic) IBOutlet UIScrollView *resetPasswordScrollViewBg;
 @property (weak, nonatomic) IBOutlet UIButton *userInfoBtn;
+@property (strong, nonatomic) IBOutlet UIButton *doSaveUserInfoBtn;
+
+
 @property (weak, nonatomic) IBOutlet UIButton *resetPasswordBtn;
+@property (strong, nonatomic) IBOutlet UIButton *doResetPasswordBtn;
+
 
 @property (weak, nonatomic) IBOutlet UIView *userInfoView;
 @property (strong, nonatomic) IBOutlet UIButton *saveUserInfoBtn;

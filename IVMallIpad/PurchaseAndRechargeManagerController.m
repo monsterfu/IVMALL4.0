@@ -41,9 +41,9 @@
     _rechargeModeSelectViewController = [[RechargeModeSelectViewController alloc]initWithNibName:[NSString xibName:@"RechargeModeSelectViewController"] bundle:nil];
     _rechargeModeSelectViewController.delegate = self;
     
-    _rechargeSuccessViewController = [[RechargeSuccessViewController alloc]initWithNibName:[NSString xibName:@"RechargeSuccessViewController"] bundle:nil jump:(_mode != ProcessModeEnum_Recharge)?YES:NO];
+    _rechargeSuccessViewController = [[RechargeSuccessViewController alloc]initWithNibName:[NSString xibName:@"RechargeSuccessViewController"] bundle:nil jump:(YES)/*_mode != ProcessModeEnum_Recharge)?YES:NO*/];
     _rechargeSuccessViewController.delegate = self;
-    _purchaseSuccessViewController = [[PurchaseSuccessViewController alloc]initWithNibName:[NSString xibName:@"PurchaseSuccessViewController"] bundle:nil jump:(_completionHander != nil)?YES:NO];
+    _purchaseSuccessViewController = [[PurchaseSuccessViewController alloc]initWithNibName:[NSString xibName:@"PurchaseSuccessViewController"] bundle:nil jump:(YES)/*_completionHander != nil)?YES:NO*/];
     _purchaseSuccessViewController.delegate = self;
     
     _rechargeViewController = [[RechargeViewController alloc]initWithNibName:[NSString xibName:@"RechargeViewController"] bundle:nil];
@@ -143,20 +143,20 @@
 #pragma mark - PurchaseSuccessViewControllerDelegate
 -(void)purchaseSuccessViewBack
 {
-    [[PopUpViewController shareInstance]dismissAnimated:YES];
+    [[PopUpViewController shareInstance]dismissAnimated:NO];
 }
 -(void)purchaseSuccessViewJump
 {
+    [[PopUpViewController shareInstance]dismissAnimated:NO];
     if (_completionHander) {
         _completionHander();
     }
-    [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterPurchaseSuccessViewJump object:nil];
 }
 #pragma mark - RechargeSuccessViewControllerDelegate
 -(void)rechargeSuccessViewBack
 {
     if (_mode == ProcessModeEnum_Recharge) {
-        [[PopUpViewController shareInstance]dismissAnimated:YES];
+        [[PopUpViewController shareInstance]dismissAnimated:NO];
     }else{
         [self transitionFromViewController:_currentViewController toViewController:_rechargeViewController duration:1 options:UIViewAnimationOptionTransitionNone animations:^{
         }completion:^(BOOL finished) {
@@ -167,12 +167,16 @@
             }
         }];
     }
-    
 }
 -(void)rechargeSuccessJumpToPurchase
 {
+    [[PopUpViewController shareInstance]dismissAnimated:NO];
+    if (_completionHander) {
+        _completionHander();
+    }
+    return;
     if (_mode == ProcessModeEnum_Purchase_From_EpisodeItem) {
-        [[PopUpViewController shareInstance]dismissAnimated:YES];
+        [[PopUpViewController shareInstance]dismissAnimated:NO];
         [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterPurchaseSuccessViewJump object:nil];
     }else{
         [self transitionFromViewController:_currentViewController toViewController:_buyVIPViewController duration:1 options:UIViewAnimationOptionTransitionNone animations:^{
@@ -203,7 +207,7 @@
             break;
         case ProcessModeEnum_Recharge:
         {
-            [[PopUpViewController shareInstance]dismissAnimated:YES];
+            [[PopUpViewController shareInstance]dismissAnimated:NO];
         }
             break;
         default:
@@ -358,6 +362,7 @@
                     _currentViewController = _confirmPurchaseViewController;
                 }
             }];
+            [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterPurchaseSuccessViewJump object:nil];
         }else if(buyVip.result == 107){
             _rechargeModeSelectViewController.pointModel = _pointModel;
             _rechargeModeSelectViewController.buyListModel = _confirmPurchaseViewController.buyListModel;
@@ -370,9 +375,6 @@
                     _currentViewController = _confirmPurchaseViewController;
                 }
             }];
-//            _purchaseFailedAlertView = [[UIAlertView alloc] initWithTitle:@"余额不足" message:@"您的余额不足，现在去充值？" delegate:self cancelButtonTitle:@"稍后再充" otherButtonTitles:@"现在就去", nil];
-//            [_purchaseFailedAlertView show];
-//            return;
         }
         else
         {

@@ -35,7 +35,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    _versionLabel.text = [NSString stringWithFormat:@"版本:%@",IVMALL_VERSION];
+    _versionLabel.text = [NSString stringWithFormat:@"版本:V%@",IVMALL_VERSION];
     
     
     // Do any additional setup after loading the view from its nib.
@@ -45,6 +45,13 @@
 {
     if (!iPad) {
         _closeBtn.frame = CGRectMake((iPhone5?89:46), 32, 30, 30);
+    }
+    if ([self.navigationController childViewControllers].count >2) {
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-18.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-19.png"] forState:UIControlStateHighlighted];
+    }else{
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close_sel.png"] forState:UIControlStateHighlighted];
     }
 }
 

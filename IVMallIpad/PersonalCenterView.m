@@ -295,13 +295,14 @@
     if(iPad){
         buttton1.frame = CGRectMake(35, 240, 130, 40);
     }else{
-        buttton1.frame = CGRectMake(20, 135, 80, 30);
+        buttton1.frame = CGRectMake(20, 130, 80, 28);
     }
     [buttton1 setBackgroundImage:[UIImage imageNamed:@"button_f4.png"] forState:UIControlStateNormal];
     [buttton1 setBackgroundImage:[UIImage imageNamed:@"button_f3.png"] forState:UIControlStateHighlighted];
     [buttton1 setTitle:@"登录" forState:UIControlStateNormal];
     buttton1.titleLabel.font = [UIFont systemFontOfSize:(iPad?20:15)];
     [buttton1 setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [buttton1 setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
     [buttton1 addTarget:self action:@selector(enterLogin:) forControlEvents:UIControlEventTouchUpInside];
     [notLoginView addSubview:buttton1];
 }
@@ -327,7 +328,7 @@
         loginView.layer.borderWidth = 3;
         loginView.layer.borderColor = [Commonality colorFromHexRGB:@"42843d"].CGColor;
     }else{
-        loginView.frame = CGRectMake((VIEWHEIGHT-120-100*3-10*4)/2, 45, 120, 175);
+        loginView.frame = CGRectMake((VIEWHEIGHT-120-100*3-10*3)/2, 45, 120, 175);
         loginView.backgroundColor = [Commonality colorFromHexRGB:@"f2ffe5"];
         loginView.layer.masksToBounds = YES;
         loginView.layer.cornerRadius = 18;
@@ -341,7 +342,7 @@
     if (iPad) {
         tempRect1 = CGRectMake(20, 23, 168, 20);
     }else{
-        tempRect1 = CGRectMake(10, 15, 100, 15);
+        tempRect1 = CGRectMake(10, 10, 100, 15);
     }
     UILabel* label1 = [[UILabel alloc]initWithFrame:tempRect1];
     label1.tag = 501;
@@ -357,7 +358,7 @@
     if (iPad) {
         tempRect2 = CGRectMake(20, 53, 168, 20);
     }else{
-        tempRect2 = CGRectMake(10, 35, 100, 15);
+        tempRect2 = CGRectMake(10, 30, 100, 15);
     }
     UILabel* label2 = [[UILabel alloc]initWithFrame:tempRect2];
     label2.tag = 502;
@@ -372,7 +373,7 @@
     if (iPad) {
         tempRect3 = CGRectMake(20, 83, 168, 20);
     }else{
-        tempRect3 = CGRectMake(10, 50, 100, 15);
+        tempRect3 = CGRectMake(10, 45, 100, 15);
     }
     UILabel* label3 = [[UILabel alloc]initWithFrame:tempRect3];
     label3.tag = 503;
@@ -383,17 +384,19 @@
     [label3 setHidden:YES];
     [loginView addSubview:label3];
     
+    
     UIButton* buttton1 = [UIButton buttonWithType:UIButtonTypeCustom];
     if (iPad) {
         buttton1.frame = CGRectMake(39, 109, 130, 40);
     }else{
-        buttton1.frame = CGRectMake(20, 76, 80, 20);
+        buttton1.frame = CGRectMake(20, 70, 80, 24);
     }
-    
+    buttton1.tag = 504;
     [buttton1 setBackgroundImage:[UIImage imageNamed:@"button_d1.png"] forState:UIControlStateNormal];
     [buttton1 setBackgroundImage:[UIImage imageNamed:@"button_d2.png"] forState:UIControlStateHighlighted];
     [buttton1 setTitle:@"开通会员" forState:UIControlStateNormal];
     [buttton1 setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [buttton1 setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
     buttton1.titleLabel.font = [UIFont systemFontOfSize:(iPad?15:12)];
     [buttton1 addTarget:self action:@selector(enterBuyVip:) forControlEvents:UIControlEventTouchUpInside];
     [loginView addSubview:buttton1];
@@ -411,13 +414,14 @@
     if (iPad) {
         editInfoBtn.frame = CGRectMake(39, 159, 130, 40);
     }else{
-        editInfoBtn.frame = CGRectMake(20, 101, 80, 20);
+        editInfoBtn.frame = CGRectMake(20, 101, 80, 24);
     }
     editInfoBtn.exclusiveTouch = YES;
     [editInfoBtn setBackgroundImage:[UIImage imageNamed:@"button_d1.png"] forState:UIControlStateNormal];
     [editInfoBtn setBackgroundImage:[UIImage imageNamed:@"button_d2.png"] forState:UIControlStateHighlighted];
     [editInfoBtn setTitle:@"个人设置" forState:UIControlStateNormal];
     [editInfoBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [editInfoBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
     editInfoBtn.titleLabel.font = [UIFont systemFontOfSize:(iPad?15:12)];
     [editInfoBtn addTarget:self action:@selector(enterUserDetail:) forControlEvents:UIControlEventTouchUpInside];
     [loginView addSubview:editInfoBtn];
@@ -426,13 +430,14 @@
     if (iPad) {
         logoutBtn.frame = CGRectMake(39, 233, 130, 40);
     }else{
-        logoutBtn.frame = CGRectMake(20, 135, 80, 20);
+        logoutBtn.frame = CGRectMake(20, 137, 80, 24);
     }
     logoutBtn.exclusiveTouch = YES;
     [logoutBtn setBackgroundImage:[UIImage imageNamed:@"button_d1.png"] forState:UIControlStateNormal];
     [logoutBtn setBackgroundImage:[UIImage imageNamed:@"button_d2.png"] forState:UIControlStateHighlighted];
     [logoutBtn setTitle:@"退出登录" forState:UIControlStateNormal];
     [logoutBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [logoutBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
     logoutBtn.titleLabel.font = [UIFont systemFontOfSize:(iPad?15:12)];
     [logoutBtn addTarget:self action:@selector(logout:) forControlEvents:UIControlEventTouchUpInside];
     [loginView addSubview:logoutBtn];
@@ -459,7 +464,7 @@
     if ([AppDelegate App].UserInfo.vipLevel == 0)
     {
         temp3.text = @"注册用户";
-        [temp4 setTitle:@"开通用户" forState:UIControlStateNormal];
+        [temp4 setTitle:@"开通会员" forState:UIControlStateNormal];
     }else
     {
         NSString*  dateString = [Commonality Date2Str4:[Commonality dateFromString:[AppDelegate App].UserInfo.vipExpiryTime]];
@@ -471,8 +476,11 @@
 -(void)enterBuyVip:(UIButton*)sender
 {
     [[AppDelegate App]click];
-    if (self.delegate&&[self.delegate respondsToSelector:@selector(buyVip)]) {
-        [self.delegate buyVip];
+    if (self.delegate&&[self.delegate respondsToSelector:@selector(buyVip:)]) {
+        PurchaseCompletionHandler myCallBack = ^{
+            [self getUserInfo];
+        };
+        [self.delegate buyVip:myCallBack];
     }
     
 }

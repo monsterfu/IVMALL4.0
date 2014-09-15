@@ -14,6 +14,7 @@
 //zjj
 @property (strong,nonatomic) NSString* episodeGuid;
 @property (strong,nonatomic) NSString* langs;
+@property (strong,nonatomic) NSString* latestPlayLang;
 
 //zjj
 @property (strong, nonatomic) IBOutlet UIScrollView *scrollView;

@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "Macro.h"
 #import "BuyListModel.h"
+#import "BuyVIPCell.h"
 
 typedef enum : NSUInteger {
     ProductOne,//后续根据实际产品名字再命名，这里先用123
@@ -22,7 +23,7 @@ typedef enum : NSUInteger {
 @end
 
 
-@interface BuyVIPViewController : UIViewController
+@interface BuyVIPViewController : UIViewController<UITableViewDataSource,UITableViewDelegate,BuyVIPCellDelegate>
 {
     NSMutableArray* _vipArray;
 }
@@ -31,25 +32,11 @@ typedef enum : NSUInteger {
 
 ////////////////
 @property (strong, nonatomic) IBOutlet UIButton *closeBtn;
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
 
-@property (weak, nonatomic) IBOutlet UILabel *productNameLabel;
-@property (weak, nonatomic) IBOutlet UILabel *productDesLabel;
-
-@property (weak, nonatomic) IBOutlet UILabel *productName1Label;
-@property (weak, nonatomic) IBOutlet UILabel *productDes1Label;
-
-
-@property (weak, nonatomic) IBOutlet UIButton *oneButton;
-@property (weak, nonatomic) IBOutlet UIButton *twoButton;
-
-////////////////
-- (IBAction)oneButtonTouch:(UIButton *)sender;
-- (IBAction)twoButtonTouch:(UIButton *)sender;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicatorView;
 
 
 - (IBAction)closeButtonTouch:(UIButton *)sender;
-
-@property (weak, nonatomic) IBOutlet UIView *viewOne;
-@property (weak, nonatomic) IBOutlet UIView *viewTwo;
 
 @end

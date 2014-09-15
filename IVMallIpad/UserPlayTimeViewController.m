@@ -71,6 +71,13 @@
         _closeBtn.frame = CGRectMake((iPhone5?89:46), 32, 30, 30);
     }
     [self.view bringSubviewToFront:_closeBtn];
+    if ([self.navigationController childViewControllers].count >2) {
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-18.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-19.png"] forState:UIControlStateHighlighted];
+    }else{
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close_sel.png"] forState:UIControlStateHighlighted];
+    }
     myPlayTime = nil;
     [HttpRequest UserPlayTimeRequestToken:[AppDelegate App].myUserLoginMode.token delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
 }

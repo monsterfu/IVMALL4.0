@@ -23,6 +23,7 @@
 @property(nonatomic,assign)BOOL isSelect;
 @property(nonatomic,assign)int pages;
 @property (nonatomic,assign) int counts;
+@property (nonatomic,strong) NSString* langs;
 
 - (id)initWithDictionary:(NSDictionary *)dictionary modelList:(NSMutableArray*)mList page:(int)page;
 @end

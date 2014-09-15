@@ -38,6 +38,7 @@
         _episodeCount = [[dictionary objectForKey:@"episodeCount"]intValue];
         _liveSubhead = [dictionary objectForKey:@"liveSubhead"];
         _isCollect = [[dictionary objectForKey:@"isCollect"]intValue];
+        _langs = [dictionary objectForKey:@"langs"];
     }
     return self;
 }
@@ -72,8 +73,6 @@
                     }else{
                         [_ads addObject:um];
                     }
-
-                    
                 }
             }
             

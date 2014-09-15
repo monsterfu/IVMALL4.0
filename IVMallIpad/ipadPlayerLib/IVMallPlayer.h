@@ -20,6 +20,14 @@ enum{
 };
 typedef NSInteger PlayerCallBackEventType;
 
+enum{
+    FirstVideoOfEpisode = 1,
+    MiddleVideoOfEpisode = 2,
+    LastVideoOfEpisode = 3,
+    VideoNotEpisode = 4,
+};
+typedef NSInteger connectionPlayProType;
+
 @protocol PlayerCallBackDelegate <NSObject>
 -(void)PlayerCallBack:(PlayerCallBackEventType)callBackEventType withParameter: (NSMutableDictionary *)callBackInfo;
 @end
@@ -36,7 +44,10 @@ typedef NSInteger PlayerCallBackEventType;
 - (NSInteger)IVMallPlayerInit:(NSString *)DRMServer :(NSString *)reportServer;
 
 //播放
-- (NSInteger)IVMallPlayerStart:(NSString *)url withVideoName:(NSString *)videoName fromViewController:(UIViewController *)viewController startTime:(NSTimeInterval)time;
+- (NSInteger)IVMallPlayerStart:(NSString *)url withVideoName:(NSString *)videoName withConnectionPlayProType:(connectionPlayProType)connectionType fromViewController:(UIViewController *)viewController startTime:(NSTimeInterval)time;
+
+//续播设置url
+- (NSInteger)IVMallPlayerSetUrl:(NSString *)url withConnectionPlayProType:(connectionPlayProType)connectionType andVideoName:(NSString *)videoName;
 
 //获取设备信息
 - (NSMutableDictionary*)IVMallPlayerGetLocalInfo;

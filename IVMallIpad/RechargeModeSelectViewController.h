@@ -25,6 +25,7 @@
 {
     AlipayPrepareSecurePayModel* _myAlipay;
     AppTwoDimensionPayModel* _twoDimensionModel;
+    TradeResultModel* _tradeResultModel;
 }
 @property (nonatomic, assign)id<RechargeModeSelectViewControllerDelegate>delegate;
 @property (nonatomic, retain)AppPointModel* pointModel;
@@ -38,14 +39,14 @@
 
 
 - (IBAction)backButtonTouch:(UIButton *)sender;
-@property (weak, nonatomic) IBOutlet UIButton *alipayButton;
 
+
+@property (weak, nonatomic) IBOutlet UIButton *alipayButton;
 - (IBAction)alipayButtonTouch:(UIButton *)sender;
 @property (weak, nonatomic) IBOutlet UIButton *twoDimensionButton;
-
 - (IBAction)twoDimensionButtonTouch:(UIButton *)sender;
-
 @property (weak, nonatomic) IBOutlet UIButton *weixinButton;
+- (IBAction)weixinButtonTouch:(UIButton *)sender;
 
 
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicatorView;

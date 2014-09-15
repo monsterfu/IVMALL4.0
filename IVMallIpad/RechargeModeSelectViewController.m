@@ -17,6 +17,8 @@
 #import "AlixLibService.h"
 #import "UIImageView+WebCache.h"
 
+
+
 @interface RechargeModeSelectViewController ()
 
 @end
@@ -35,8 +37,7 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     _totalLabel.text = [NSString stringWithFormat:@"￥%.2f",_pointModel.points];
-    [HttpRequest AlipayPrepareSecurePayRequestToken:[AppDelegate App].myUserLoginMode.token price:_pointModel.price vipGuid:_buyListModel.productId delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-    
+    [HttpRequest AlipayPrepareSecurePayRequestToken:[AppDelegate App].myUserLoginMode.token price:_pointModel.price vipGuid:_buyListModel.productId delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];    
     [_twoDimensionButton setHidden:YES];
     _twoDimensionButton.exclusiveTouch = YES;
     [_alipayButton setHidden:YES];
@@ -55,11 +56,17 @@
         _closeBtn.frame = CGRectMake((iPhone5?89:46), 32, 30, 30);
     }
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(PayAlipayResultNoticeProcess:) name:NSNotificationCenterPayAlipayResult object:nil];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(PayAlipayResultNoticeProcess:) name:NSNotificationCenterTencentPayResult object:nil];
+    
+    _alipayButton.exclusiveTouch = YES;
+    _weixinButton.exclusiveTouch = YES;
+    _twoDimensionButton.exclusiveTouch = YES;
 }
 
 -(void)dealloc
 {
     [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterPayAlipayResult object:nil];
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterTencentPayResult object:nil];
 }
 
 - (void)didReceiveMemoryWarning
@@ -141,6 +148,16 @@
         {
             _twoDimensionModel = [[AppTwoDimensionPayModel alloc]initWithDictionary:dictionary];
             [_twoDimensionImageView setImageWithURL:[NSURL URLWithString:_twoDimensionModel.qrcodeImgURL]];
+        }else if(request.tag == ALIPAY_QRCODETRADERESULT_TYPE)
+        {
+            _tradeResultModel = [[TradeResultModel alloc]initWithDictionary:dictionary];
+            
+            if (_tradeResultModel.result == 0&&[_tradeResultModel.tradeResult isEqualToString:@"true"]) {
+                PayAddModel *lm=[[PayAddModel alloc]init];
+                lm.points = _tradeResultModel.points;
+                [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterPayAlipayResult object:nil userInfo:dictionary];
+            }
+            
         }else{
 //                if (lm.result == 221) {
 //                    [Commonality showErrorMsg:self type:0 msg:@"您已经使用过此次活动赠送的充值卡进行充值"];
@@ -150,7 +167,20 @@
         }
     }
 }
-
+#pragma mark - 微信支付
+-(void)TencentPayResultNoticeProcess:(NSNotification*)notification
+{
+    NSDictionary* dic = [notification userInfo];
+    TradeResultModel* _tradeResultModel = [[TradeResultModel alloc]initWithDictionary:dic];
+    
+    if (_tradeResultModel.result == 0&&[_tradeResultModel.tradeResult isEqualToString:@"true"]) {
+        PayAddModel *lm=[[PayAddModel alloc]init];
+        lm.points = _tradeResultModel.points;
+        if (self.delegate&&[self.delegate respondsToSelector:@selector(rechargeModeSelectAliPaySuccess:)]){
+            [self.delegate rechargeModeSelectAliPaySuccess:lm];
+        }
+    }
+}
 
 #pragma mark - 支付宝
 -(void)PayAlipayResultNoticeProcess:(NSNotification*)notification
@@ -166,6 +196,8 @@
         }
     }
 }
+
+
 //wap回调函数
 -(void)paymentResult:(NSString *)resultd
 {
@@ -194,7 +226,8 @@
             //                //验证签名成功，交易结果无篡改
             //			}
             
-            [HttpRequest AlipayTradeResultRequestToken:[AppDelegate App].myUserLoginMode.token outTradeNo:_myAlipay.outTradeNo totalFee:_myAlipay.totalFee delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+//    [HttpRequest AlipayTradeResultRequestToken:[AppDelegate App].myUserLoginMode.token outTradeNo:_myAlipay.outTradeNo totalFee:_myAlipay.totalFee delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+            [HttpRequest AlipayQRCODETradeResultRequestToken:[AppDelegate App].myUserLoginMode.token outTradeNo:_myAlipay.outTradeNo delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
         }
         else
         {
@@ -252,5 +285,8 @@
     signer = CreateRSADataSigner(PartnerPrivKey);
     NSString *signedString = [signer signString:orderInfo];
     return signedString;
+}
+- (IBAction)weixinButtonTouch:(UIButton *)sender {
+    [[WXPayClient shareInstance]payProduct:_buyListModel.productId price:_pointModel.price view:self.view];
 }
 @end

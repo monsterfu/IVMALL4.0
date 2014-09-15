@@ -227,7 +227,6 @@ static PopUpViewController *single_PopUpViewController = nil;
     }
 }
 
-
 #pragma mark - UIViewController
 //
 - (void)viewDidLoad {
@@ -277,6 +276,12 @@ static PopUpViewController *single_PopUpViewController = nil;
 }
 
 - (void)createScreenshotAndLayoutWithScreenshotCompletion:(dispatch_block_t)screenshotCompletion {
+    if (!_blur) {
+        if (screenshotCompletion != nil) {
+            screenshotCompletion();
+        }
+        return;
+    }
     if (self.blurLevel > 0.f) {
         self.blurView.alpha = 0.f;
         
@@ -312,7 +317,7 @@ static PopUpViewController *single_PopUpViewController = nil;
 
 #pragma mark - Animations
 
-- (void)popViewController:(UIViewController *)popViewController fromViewController:(UIViewController *)baseViewController finishViewController:(UIViewController*)finishViewController{
+- (void)popViewController:(UIViewController *)popViewController fromViewController:(UIViewController *)baseViewController finishViewController:(UIViewController*)finishViewController blur:(BOOL)blur{
     
     NSParameterAssert(baseViewController != nil);
     NSParameterAssert(popViewController != nil);
@@ -320,14 +325,14 @@ static PopUpViewController *single_PopUpViewController = nil;
     _baseViewController = baseViewController;
     _popViewController = popViewController;
     _finishViewController = finishViewController;
-    
+    _blur = blur;
     _menuView = popViewController.view;
     
     [self rn_addToParentViewController:baseViewController callingAppearanceMethods:NO];
     popViewController.view.center = baseViewController.view.center;
     popViewController.view.frame = baseViewController.view.bounds;
     
-    [self showAnimated:YES];
+    [self showAnimated:NO];
 }
 
 - (void)showAnimated:(BOOL)animated {
@@ -412,7 +417,7 @@ static PopUpViewController *single_PopUpViewController = nil;
     }
     
     if (_finishViewController) {
-        [self popViewController:_finishViewController fromViewController:_baseViewController finishViewController:nil];
+        [self popViewController:_finishViewController fromViewController:_baseViewController finishViewController:nil blur:_blur];
     }
 }
 

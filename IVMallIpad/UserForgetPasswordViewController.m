@@ -34,6 +34,10 @@
     return self;
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:UITextFieldTextDidChangeNotification object:nil];
+}
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -69,11 +73,11 @@
 
     
     [self setLabelBgColor];
-    _lowLabel.layer.cornerRadius = 10;
-    _midLabel.layer.cornerRadius = 10;
-    _highLabel.layer.cornerRadius = 10;
+    _lowLabel.layer.cornerRadius = (iPad?10:5);
+    _midLabel.layer.cornerRadius = (iPad?10:5);
+    _highLabel.layer.cornerRadius = (iPad?10:5);
     
-    [_bgView setContentSize:CGSizeMake((iPad?760:380), (iPad?1200:600))];
+    [_bgView setContentSize:CGSizeMake((iPad?760:380), (iPad?800:420))];
     _bgView.delegate = self;
     _bgView.pagingEnabled = NO;
     _bgView.showsHorizontalScrollIndicator = NO;
@@ -98,6 +102,13 @@
     
     if (!iPad) {
         _closeBtn.frame = CGRectMake((iPhone5?89:46), 32, 30, 30);
+    }
+    if ([self.navigationController childViewControllers].count >2) {
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-18.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-19.png"] forState:UIControlStateHighlighted];
+    }else{
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close_sel.png"] forState:UIControlStateHighlighted];
     }
     
     NSString* mobile = [[NSUserDefaults standardUserDefaults]objectForKey:@"mobile"];
@@ -137,9 +148,9 @@
 //    }
     [textField beginEditing];
     
-//    if (textField == _passWord) {
-//        isPasswordFiledEdting = YES;
-//    }
+    if (textField == _passWord) {
+        isPasswordFiledEdting = YES;
+    }
 //    if (textField == _confirmPassWord) {
 //        [self setViewFrame:1];
 //    }
@@ -380,7 +391,9 @@
             if (temp.errorCode == 0) {
                 [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"mobile"];
                 [[NSUserDefaults standardUserDefaults]setObject:_userName.text forKey:@"mobile"];
+                [Commonality showErrorMsg:self.view type:0 msg:@"重置密码成功！"];
                 [self.navigationController popViewControllerAnimated:NO];
+                
             }else{
                 [Commonality showErrorMsg:self.view type:0 msg:temp.errorMessage];
             }

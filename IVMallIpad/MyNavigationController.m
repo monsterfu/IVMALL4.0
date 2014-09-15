@@ -7,7 +7,7 @@
 //
 
 #import "MyNavigationController.h"
-
+#import "Macro.h"
 @interface MyNavigationController ()
 
 @end
@@ -26,6 +26,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [self hideStatubar];
     // Do any additional setup after loading the view.
 }
 
@@ -33,6 +34,27 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    return UIStatusBarStyleLightContent;
+}
+
+- (BOOL)prefersStatusBarHidden
+{
+    return YES;
+}
+
+- (void)hideStatubar
+{
+    if (IOS7)
+    {
+        [self setNeedsStatusBarAppearanceUpdate];
+    }else
+    {
+        [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    }
 }
 
 /*
@@ -59,6 +81,6 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    return (interfaceOrientation==UIInterfaceOrientationPortrait);
+        return (interfaceOrientation==UIInterfaceOrientationLandscapeLeft || interfaceOrientation==UIDeviceOrientationLandscapeRight);
 }
 @end

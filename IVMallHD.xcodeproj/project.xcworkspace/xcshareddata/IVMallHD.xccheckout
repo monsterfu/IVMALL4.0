@@ -5,20 +5,24 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>0B53449A-6665-4D32-BD50-8B67673CA537</string>
+	<string>D9BAA7E6-5DCD-4101-A4F4-3D9FAD73DA51</string>
 	<key>IDESourceControlProjectName</key>
 	<string>IVMallHD</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>3B224422-80BE-42D0-A0A9-488B420BF4E8</key>
-		<string>http://192.168.40.20/svn/iVmall/trunk/iVmallHD/iVmall/iOS/iVmall4</string>
+		<string>http://192.168.40.20/svn/iVmall/trunk/iVmall2.x/iOS/IVMalliPad3.1</string>
+		<key>AD74459C-B4B4-498A-AC39-67CDC955CC92</key>
+		<string>https://github.com/monsterfu/IVMALL4.0.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>IVMall4.0/IVMallHD.xcodeproj/project.xcworkspace</string>
+	<string>IVMALL4.0/IVMALL4.0/IVMallHD.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>3B224422-80BE-42D0-A0A9-488B420BF4E8</key>
-		<string>../../..</string>
+		<string>../../../..</string>
+		<key>AD74459C-B4B4-498A-AC39-67CDC955CC92</key>
+		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectRepositoryRootDictionary</key>
 	<dict>
@@ -26,7 +30,7 @@
 		<string>http://192.168.40.20/svn/iVmall</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>http://192.168.40.20/svn/iVmall/trunk/iVmallHD/iVmall/iOS/iVmall4/IVMall4.0/IVMallHD.xcodeproj</string>
+	<string>https://github.com/monsterfu/IVMALL4.0.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>110</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
@@ -46,6 +50,14 @@
 			<string>3B224422-80BE-42D0-A0A9-488B420BF4E8</string>
 			<key>IDESourceControlWCCName</key>
 			<string>code副本</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>AD74459C-B4B4-498A-AC39-67CDC955CC92</string>
+			<key>IDESourceControlWCCName</key>
+			<string>IVMALL4.0</string>
 		</dict>
 	</array>
 </dict>

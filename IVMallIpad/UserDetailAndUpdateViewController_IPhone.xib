@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
     <dependencies>
-        <deployment defaultVersion="1536" identifier="iOS"/>
+        <deployment defaultVersion="1792" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="UserDetailAndUpdateViewController">
             <connections>
+                <outlet property="UserInfoScrollViewBg" destination="BDr-iG-8JT" id="vDh-JQ-3pe"/>
                 <outlet property="addressCell" destination="SGk-6b-Ijc" id="p0i-mI-GPO"/>
                 <outlet property="addressInputTextView" destination="rdZ-24-Zsn" id="8oQ-Jj-hIv"/>
                 <outlet property="birthdayCell" destination="JcG-3k-28m" id="0bd-eV-TwF"/>
@@ -14,6 +15,8 @@
                 <outlet property="closeBtn" destination="luA-yz-z8v" id="iNt-3u-jVP"/>
                 <outlet property="dataPickView" destination="w4C-hd-Gmy" id="Tbw-3w-iWK"/>
                 <outlet property="datePicker" destination="szG-a6-FHx" id="vbj-dR-cId"/>
+                <outlet property="doResetPasswordBtn" destination="n4e-tf-6Zo" id="feh-5Z-Kac"/>
+                <outlet property="doSaveUserInfoBtn" destination="t0p-Cj-F6j" id="HW7-5P-n77"/>
                 <outlet property="emailCell" destination="9kd-9f-FJf" id="zhv-Hb-H1n"/>
                 <outlet property="emailInputField" destination="v6e-JA-IYh" id="I0T-DT-nkX"/>
                 <outlet property="gender" destination="5kB-B5-qwx" id="AYW-tw-zq9"/>
@@ -26,9 +29,9 @@
                 <outlet property="nickNameInputField" destination="hvV-bD-741" id="j1a-Sz-rTQ"/>
                 <outlet property="oldPasswordTextField" destination="v7Z-EQ-92R" id="EtF-yh-Jpp"/>
                 <outlet property="resetPasswordBtn" destination="BvU-7g-hxe" id="Obd-q8-tIE"/>
+                <outlet property="resetPasswordScrollViewBg" destination="Ed4-5o-SPf" id="I6w-jX-TYR"/>
                 <outlet property="resetPasswordView" destination="5iy-Yl-K7T" id="8fa-Xj-fc7"/>
                 <outlet property="saveUserInfoBtn" destination="t0p-Cj-F6j" id="a64-gq-a2V"/>
-                <outlet property="scrollViewBg" destination="BDr-iG-8JT" id="25S-np-9Qh"/>
                 <outlet property="showPasswordBtn" destination="DG0-oW-Jkh" id="7CE-s5-jlK"/>
                 <outlet property="userInfoBtn" destination="J0X-xi-H3c" id="zHd-91-0ar"/>
                 <outlet property="userInfoView" destination="iuY-uz-TiA" id="JGg-w7-1vI"/>
@@ -42,17 +45,17 @@
             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
             <subviews>
                 <view clipsSubviews="YES" contentMode="scaleToFill" id="u1e-kw-20l">
-                    <rect key="frame" x="46" y="32" width="385" height="260"/>
+                    <rect key="frame" x="50" y="32" width="380" height="260"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                     <subviews>
                         <view contentMode="scaleToFill" id="z7Z-8w-x34" userLabel="cuttingLine">
-                            <rect key="frame" x="95" y="0.0" width="1" height="260"/>
+                            <rect key="frame" x="90" y="0.0" width="1" height="260"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <color key="backgroundColor" red="0.86666666670000003" green="0.86666666670000003" blue="0.86666666670000003" alpha="1" colorSpace="calibratedRGB"/>
                             <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
                         </view>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" id="J0X-xi-H3c" userLabel="userInfoBtn">
-                            <rect key="frame" x="0.0" y="45" width="95" height="30"/>
+                            <rect key="frame" x="0.0" y="45" width="90" height="30"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -65,7 +68,7 @@
                             </connections>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" id="BvU-7g-hxe" userLabel="resetPasswordBtn">
-                            <rect key="frame" x="0.0" y="75" width="95" height="30"/>
+                            <rect key="frame" x="0.0" y="75" width="90" height="30"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                             <state key="normal" title="修改密码">
@@ -77,77 +80,84 @@
                             </connections>
                         </button>
                         <view hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" id="5iy-Yl-K7T" userLabel="resetPasswordView">
-                            <rect key="frame" x="96" y="0.0" width="289" height="260"/>
+                            <rect key="frame" x="91" y="0.0" width="289" height="260"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                             <subviews>
-                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="低" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Anv-ca-cNA">
-                                    <rect key="frame" x="60" y="105" width="28" height="15"/>
+                                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="Ed4-5o-SPf">
+                                    <rect key="frame" x="15" y="0.0" width="250" height="200"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                    <subviews>
+                                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="低" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Anv-ca-cNA">
+                                            <rect key="frame" x="15" y="103" width="28" height="15"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <color key="backgroundColor" red="0.87450980389999999" green="0.87450980389999999" blue="0.87450980389999999" alpha="1" colorSpace="calibratedRGB"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                            <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="中" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="T2z-la-3Eo">
+                                            <rect key="frame" x="47" y="103" width="28" height="15"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <color key="backgroundColor" red="0.87450980389999999" green="0.87450980389999999" blue="0.87450980389999999" alpha="1" colorSpace="calibratedRGB"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                            <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="高" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="KJU-cW-Fzo">
+                                            <rect key="frame" x="79" y="103" width="28" height="15"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <color key="backgroundColor" red="0.87450980389999999" green="0.87450980389999999" blue="0.87450980389999999" alpha="1" colorSpace="calibratedRGB"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                            <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="DG0-oW-Jkh" userLabel="showPasswdBtn">
+                                            <rect key="frame" x="140" y="103" width="15" height="15"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <state key="normal" backgroundImage="icon_132.png">
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <state key="highlighted" backgroundImage="icon_130.png"/>
+                                            <connections>
+                                                <action selector="showPasswordBtnTouched:" destination="-1" eventType="touchUpInside" id="CXx-QK-qGp"/>
+                                            </connections>
+                                        </button>
+                                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="显示密码" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="wf3-jC-Wcc">
+                                            <rect key="frame" x="158" y="104" width="50" height="14"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="旧密码" minimumFontSize="18" clearButtonMode="whileEditing" id="v7Z-EQ-92R" customClass="JYTextField">
+                                            <rect key="frame" x="15" y="30" width="220" height="28"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <textInputTraits key="textInputTraits"/>
+                                        </textField>
+                                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="新密码" minimumFontSize="18" clearButtonMode="whileEditing" id="GdS-QE-fdY" userLabel="Text Field - 新密码" customClass="JYTextField">
+                                            <rect key="frame" x="15" y="65" width="220" height="28"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <textInputTraits key="textInputTraits"/>
+                                        </textField>
+                                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="再次输入新密码" minimumFontSize="18" clearButtonMode="whileEditing" id="cPv-Vk-Zs8" userLabel="Text Field - 新密码2" customClass="JYTextField">
+                                            <rect key="frame" x="15" y="141" width="220" height="28"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <textInputTraits key="textInputTraits"/>
+                                        </textField>
+                                    </subviews>
+                                </scrollView>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" id="n4e-tf-6Zo">
+                                    <rect key="frame" x="30" y="200" width="220" height="28"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <color key="backgroundColor" red="0.87450980389999999" green="0.87450980389999999" blue="0.87450980389999999" alpha="1" colorSpace="calibratedRGB"/>
-                                    <fontDescription key="fontDescription" type="system" pointSize="10"/>
-                                    <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
-                                    <nil key="highlightedColor"/>
-                                </label>
-                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="中" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="T2z-la-3Eo">
-                                    <rect key="frame" x="92" y="105" width="28" height="15"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <color key="backgroundColor" red="0.87450980389999999" green="0.87450980389999999" blue="0.87450980389999999" alpha="1" colorSpace="calibratedRGB"/>
-                                    <fontDescription key="fontDescription" type="system" pointSize="10"/>
-                                    <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
-                                    <nil key="highlightedColor"/>
-                                </label>
-                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="高" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="KJU-cW-Fzo">
-                                    <rect key="frame" x="125" y="105" width="28" height="15"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <color key="backgroundColor" red="0.87450980389999999" green="0.87450980389999999" blue="0.87450980389999999" alpha="1" colorSpace="calibratedRGB"/>
-                                    <fontDescription key="fontDescription" type="system" pointSize="10"/>
-                                    <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
-                                    <nil key="highlightedColor"/>
-                                </label>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="DG0-oW-Jkh" userLabel="showPasswdBtn">
-                                    <rect key="frame" x="161" y="105" width="15" height="15"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <state key="normal" backgroundImage="icon_132.png">
-                                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                    </state>
-                                    <state key="highlighted" backgroundImage="icon_130.png"/>
-                                    <connections>
-                                        <action selector="showPasswordBtnTouched:" destination="-1" eventType="touchUpInside" id="CXx-QK-qGp"/>
-                                    </connections>
-                                </button>
-                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="显示密码" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="wf3-jC-Wcc">
-                                    <rect key="frame" x="181" y="105" width="50" height="14"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                    <nil key="highlightedColor"/>
-                                </label>
-                                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="旧密码" minimumFontSize="18" clearButtonMode="unlessEditing" id="v7Z-EQ-92R" customClass="JYTextField">
-                                    <rect key="frame" x="57" y="30" width="170" height="25"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                    <textInputTraits key="textInputTraits"/>
-                                </textField>
-                                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="新密码" minimumFontSize="18" clearButtonMode="unlessEditing" id="GdS-QE-fdY" userLabel="Text Field - 新密码" customClass="JYTextField">
-                                    <rect key="frame" x="57" y="75" width="170" height="25"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                    <textInputTraits key="textInputTraits"/>
-                                </textField>
-                                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="再次输入新密码" minimumFontSize="18" clearButtonMode="unlessEditing" id="cPv-Vk-Zs8" userLabel="Text Field - 新密码2" customClass="JYTextField">
-                                    <rect key="frame" x="57" y="140" width="170" height="25"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                    <textInputTraits key="textInputTraits"/>
-                                </textField>
-                                <button opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" id="n4e-tf-6Zo">
-                                    <rect key="frame" x="57" y="200" width="170" height="25"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <state key="normal" title="确定" backgroundImage="button_g2.png">
+                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                    <state key="normal" title="确定" backgroundImage="button_k2.png">
                                         <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                     </state>
                                     <state key="selected" backgroundImage="button_i1.png"/>
-                                    <state key="highlighted" backgroundImage="button_g1.png">
+                                    <state key="highlighted" backgroundImage="button_k1.png">
                                         <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     </state>
                                     <connections>
@@ -159,7 +169,7 @@
                             <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
                         </view>
                         <view contentMode="scaleToFill" id="iuY-uz-TiA" userLabel="userInfoView">
-                            <rect key="frame" x="96" y="0.0" width="289" height="260"/>
+                            <rect key="frame" x="91" y="0.0" width="289" height="260"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                             <subviews>
                                 <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="BDr-iG-8JT">
@@ -343,14 +353,14 @@
                                     </subviews>
                                 </scrollView>
                                 <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="t0p-Cj-F6j" userLabel="saveBtn">
-                                    <rect key="frame" x="94" y="200" width="100" height="30"/>
+                                    <rect key="frame" x="30" y="200" width="220" height="28"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                    <state key="normal" title="保存" backgroundImage="button_c1.png">
+                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                    <state key="normal" title="保存" backgroundImage="button_k2.png">
                                         <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                     </state>
-                                    <state key="highlighted" backgroundImage="button_c2.png"/>
+                                    <state key="highlighted" backgroundImage="button_k1.png"/>
                                     <connections>
                                         <action selector="doSaveUserInfo:" destination="-1" eventType="touchUpInside" id="tGm-XR-i7q"/>
                                     </connections>
@@ -392,7 +402,7 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="WCV-rS-1Ru">
                                             <rect key="frame" x="93" y="170" width="65" height="27"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                             <state key="normal" title="确定">
                                                 <color key="titleColor" red="0.066666666669999999" green="0.066666666669999999" blue="0.066666666669999999" alpha="1" colorSpace="calibratedRGB"/>
                                                 <color key="titleShadowColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -438,11 +448,9 @@ AQABAAEAAQAB//+dkAEA//+PgAAE//+dkAEI//+dkAEMUERUAFBTVABQV1QAUFBUAAAAAAEAAAABA
     </objects>
     <resources>
         <image name="button_bg0.png" width="1" height="112"/>
-        <image name="button_c1.png" width="236" height="100"/>
-        <image name="button_c2.png" width="236" height="100"/>
-        <image name="button_g1.png" width="329" height="88"/>
-        <image name="button_g2.png" width="329" height="88"/>
         <image name="button_i1.png" width="435" height="100"/>
+        <image name="button_k1.png" width="701" height="100"/>
+        <image name="button_k2.png" width="701" height="100"/>
         <image name="close.png" width="110" height="110"/>
         <image name="close_sel.png" width="110" height="110"/>
         <image name="icon_06-06.png" width="52" height="52"/>

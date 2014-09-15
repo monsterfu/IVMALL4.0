@@ -34,6 +34,12 @@
     [HttpRequest UserBalanceRequestToken:[AppDelegate App].myUserLoginMode.token delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
 }
 
+-(void)viewDidDisappear:(BOOL)animated
+{
+    [_countDownTimer invalidate];
+    _countDownTimer = nil;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];

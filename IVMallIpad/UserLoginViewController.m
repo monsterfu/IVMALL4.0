@@ -37,8 +37,8 @@
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterPushAutoLogin object:nil];
-    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterRegisterInSuccess object:nil];
+//    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterPushAutoLogin object:nil];
+//    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterRegisterInSuccess object:nil];
 }
 - (void)viewDidLoad
 {
@@ -184,6 +184,8 @@
 //        [self.delegate closeLoginView];
 //    }
             [[AppDelegate App]click];
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterPushAutoLogin object:nil];
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterRegisterInSuccess object:nil];
     [self.navigationController popViewControllerAnimated:NO];
 }
 

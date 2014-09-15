@@ -13,18 +13,14 @@
 #import "Macro.h"
 
 
-@interface MainViewController : UIViewController<UIScrollViewDelegate,UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,MainViewRefershDelegate,MainViewDelegate>
+@interface MainViewController : UIViewController<UIScrollViewDelegate,MainViewRefershDelegate,MainViewDelegate/*,UITableViewDataSource,UITableViewDelegate*/>
 
-@property (nonatomic,strong)IBOutlet  UIImageView*  blurImage;
-@property (nonatomic,strong)IBOutlet  UIImageView*  myBackgroundImageView;
-@property (nonatomic,strong)IBOutlet  UIImageView*  UserDefinedPhotoImageView;//用户自定义头像
-@property (nonatomic,strong)IBOutlet  UIScrollView* SortScrollView;//分类集合
-@property (nonatomic,strong)IBOutlet  UIButton*     PersonalCenterButton;//个人中心按钮
-@property (nonatomic,strong)IBOutlet  UIButton*     PlayRecordButton;//播放记录按钮
-@property (nonatomic,strong)IBOutlet  UIButton*     WifiSetupButton;//WiFi设置按钮
-@property (nonatomic,strong)IBOutlet  UIImageView*  cloudImageView2;
+@property (nonatomic,strong)IBOutlet  UIImageView*      myBackgroundImageView;//首页背景图片
+@property (nonatomic,strong)IBOutlet  UIImageView*      UserDefinedPhotoImageView;//用户自定义头像
+@property (nonatomic,strong)IBOutlet  UIButton*         personalCenterButton;//进入个人中心按钮
+@property (nonatomic,strong)IBOutlet  UIScrollView*     SortScrollView;//分类集合
+@property (nonatomic,strong)IBOutlet  UIButton*         categoryListButton;//显示剩余分类列表按钮
+@property (nonatomic,strong)IBOutlet  UIButton*         WifiSetupButton;//进入投屏页面按钮
 
-
-//- (IBAction)testButtonTouch:(UIButton *)sender;
 
 @end

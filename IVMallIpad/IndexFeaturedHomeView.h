@@ -14,6 +14,7 @@
 #import "ProductPlayModel.h"
 #import "ContentEpisodeItemListViewController.h"
 #import "AppTipsModel.h"
+#import "PurchaseAndRechargeManagerController.h"
 
 enum{ //当前页面
 	PAGE_INDEX=0,       //推荐页面
@@ -26,7 +27,7 @@ typedef NSInteger PagesStateEnum;
 
 @protocol MainViewDelegate<NSObject>
 
--(void)buyVip;
+-(void)buyVip:(PurchaseCompletionHandler)fun;
 
 @optional
 - (PagesStateEnum)pageState;
@@ -34,7 +35,9 @@ typedef NSInteger PagesStateEnum;
 - (void)showMBProgressHUD;
 - (void)hideMBProgressHUD;
 - (void)showNotWifiView;
+- (void)hideNotWifiView;
 - (UINavigationController*)getNavigation;
+- (UIView*)getMianView;
 //-(void)enterViewController:(UIViewController*)newViewController;
 @end
 

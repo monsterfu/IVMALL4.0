@@ -30,7 +30,7 @@
     // Do any additional setup after loading the view from its nib.
     _label.text = _episodeTitle;
     _textView.text = _episodeDescription;
-    _textView.font = [UIFont systemFontOfSize:(iPad?16:12)];
+    _textView.font = [UIFont systemFontOfSize:(iPad?18:12)];
     
 }
 
@@ -39,6 +39,13 @@
     [super viewWillAppear:animated];
     if (!iPad) {
         _closeBtn.frame = CGRectMake((iPhone5?89:46), 32, 30, 30);
+    }
+    if ([self.navigationController childViewControllers].count >2) {
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-18.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-19.png"] forState:UIControlStateHighlighted];
+    }else{
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close_sel.png"] forState:UIControlStateHighlighted];
     }
 }
 

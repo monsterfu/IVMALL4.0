@@ -28,6 +28,10 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     //请求猫币充值个数详情
+    [_mbOneButton setSelected:YES];
+    [_mbTwoButton setSelected:NO];
+    [_mbThreeButton setSelected:NO];
+    _mbCustomTextField.text = @"";
     [HttpRequest AppPointsDelegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
 }
 
@@ -289,10 +293,8 @@
                 if (self.delegate&&[self.delegate respondsToSelector:@selector(rechargeSuccess:)]) {
                     [self.delegate rechargeSuccess:lm];
                 }
-            }else if(lm.result== 212){
-                [Commonality showErrorMsg:self.view type:0 msg:@"您已经使用过此次活动赠送的充值卡进行充值"];
             }else{
-                [Commonality showErrorMsg:self.view type:0 msg:@"请输入有效的点卡密码！"];
+                [Commonality showErrorMsg:self.view type:0 msg:lm.errorMessage];
             }
 
         }

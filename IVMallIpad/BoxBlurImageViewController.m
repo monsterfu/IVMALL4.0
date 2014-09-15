@@ -153,6 +153,7 @@
 
 #pragma mark - BoxBlurImageViewController
 
+static   UIImage *blur;
 @interface BoxBlurImageViewController ()
 {
     BOOL statusBarHidder;
@@ -191,10 +192,14 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self createScreenshotAndLayoutWithScreenshotCompletion];
-    if (!iPad) {
-        [self hideStatubar];
+    if ([self.navigationController childViewControllers].count >2) {
+        self.view.layer.contents = (id)blur.CGImage;
+    }else{
+        [self createScreenshotAndLayoutWithScreenshotCompletion];
     }
+    
+
+    [self hideStatubar];
     // Do any additional setup after loading the view.
 }
 
@@ -210,26 +215,8 @@
         self.view.alpha = 0.f;
         UIImage *screenshot = [self.parentViewController.view rn_screenshot];
         self.view.alpha = 1.f;
-        UIImage *blur = [screenshot rn_boxblurImageWithBlur:self.blurLevel exclusionPath:nil];
+        blur = [screenshot rn_boxblurImageWithBlur:self.blurLevel exclusionPath:nil];
         self.view.layer.contents = (id)blur.CGImage;
-        
-//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0L), ^{
-//            UIImage *blur = [screenshot rn_boxblurImageWithBlur:self.blurLevel exclusionPath:self.blurExclusionPath];
-//            
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//                CATransition *transition = [CATransition animation];
-//                
-//                transition.duration = 0.1;
-//                transition.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-//                transition.type = kCATransitionFade;
-//                
-//                [self.view.layer addAnimation:transition forKey:nil];
-//                self.view.layer.contents = (id)blur.CGImage;
-//                
-//                [self.view setNeedsLayout];
-//                [self.view layoutIfNeeded];
-//            });
-//        });
     }
 }
 

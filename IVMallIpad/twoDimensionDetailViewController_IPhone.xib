@@ -7,6 +7,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="twoDimensionDetailViewController">
             <connections>
+                <outlet property="activityIndicatorView" destination="2aR-zp-B3e" id="OhR-KN-Ibp"/>
                 <outlet property="closeBtn" destination="7xV-01-hsT" id="CRf-vw-ff6"/>
                 <outlet property="imgeView" destination="AIm-Qm-SnO" id="mp7-SY-SFc"/>
                 <outlet property="totalLabel" destination="0yb-5Z-2IN" id="1XO-SY-7pi"/>
@@ -79,7 +80,7 @@
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                 </view>
-                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.80000001192092896" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="选择充值方式" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="4Mu-2j-rl8">
+                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.80000001192092896" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="选择支付方式" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="4Mu-2j-rl8">
                     <rect key="frame" x="174" y="45" width="132" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" pointSize="12"/>

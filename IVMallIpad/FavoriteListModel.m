@@ -54,6 +54,7 @@
         _collectTime = [dictionary objectForKey:@"collectTime"];
         _isEpisode = [dictionary objectForKey:@"isEpisode"] ;
         _contentType = [dictionary objectForKey:@"contentType"];
+        _langs = [dictionary objectForKey:@"langs"];
         _result = 0;
     }else{
         _result = -1;

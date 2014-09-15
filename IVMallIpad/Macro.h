@@ -13,6 +13,8 @@
 #import "UITextField+UITextField_JY.h"
 #import "AppDelegate.h"
 #import "NSString+xibName.h"
+#import "WXPayClient.h"
+
 
 #define iPhone5 ([UIScreen instancesRespondToSelector:@selector(currentMode)] ? CGSizeEqualToSize(CGSizeMake(640, 1136), [[UIScreen mainScreen] currentMode].size) : NO)
 #define IOS7 ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7 ?YES:NO)
@@ -29,7 +31,7 @@
 #define FAIILURE @"当前网络不可用，请检查网络！"
 #define LINGKERROR @"网络连接异常，请重试!"
 #define NOWIFIERROR @"当前网络异常,请先退出应用配置网络"
-#define IVMALL_VERSION @"4.0.7"
+#define IVMALL_VERSION @"4.1.2"
 #define CALLPHONE @"4009904909"
 #define ALOPH 0.6
 
@@ -37,6 +39,8 @@
 //#define BASE @"http://192.168.20.130:28080"
 #define BASE @"http://api.ivmall.com"
 #define APPSERVER @"http://api.ivmall.com/push"
+
+//#define APPSERVER @"http://192.168.20.130:8480/push"
 
 
 //zjj
@@ -144,6 +148,9 @@
 //5.1.31免注册登陆
 #define ANONYMOUS_LOGIN_ACTION [BASE stringByAppendingString:@"/anonymous/login.action"]
 #define ANONYMOUS_LOGIN_TYPE 5013100
+//5.1.32	剧集播放记录列表
+#define PLAY_EPISODELIST_ACTION [BASE stringByAppendingString:@"/play/episodeList.action"]
+#define PLAY_EPISODELIST_TYPE 5013200
 //5.2.7	首页初始化-mobile(v2.4)
 #define INDEX_FEATUREDHOME_ACTION [BASE stringByAppendingString:@"/index/featuredHome.action"]
 #define INDEX_FEATUREDHOME_TYPE 5020700
@@ -182,6 +189,16 @@
 #define TWODIMENSION_CODE_TYPE 5100300
 //
 //zjj
+
+//5.10.5.3	微信应用获取access token接口
+#define TENPAY_ACCESSTOKEN_ACTION   [BASE stringByAppendingString:@"/tenpay/accessToken.action"]
+#define TENPAY_ACCESSTOKEN_TYPE     5100500
+//5.10.5.2	微信支付交易状态查询接口
+#define TENPAY_TRADERESULT_ACTION   [BASE stringByAppendingString:@"/tenpay/singleTradeQuery.action"]
+#define TENPAY_TRADERESULT_TYPE     5100600
+//5.10.5.1	微信支付预支付接口
+#define TENPAY_PREPAREWXPay_ACTION   [BASE stringByAppendingString:@"/tenpay/prepareWXPay.action"]
+#define TENPAY_PREPAREWXPay_TYPE     5100700
 
 #define MANETIONCOLOL @"f0464e"
 #define DISCOLOL @"519ea4"
@@ -250,10 +267,14 @@
 #define NSNotificationCenterPushSubscribe           @"NSNotificationCenterPushSubscribe"
 #define NSNotificationCenterUserBalanceChange       @"NSNotificationCenterUserBalanceChange"
 #define NSNotificationCenterPayAlipayResult         @"NSNotificationCenterPayAlipayResult"
+#define NSNotificationCenterTencentPayResult         @"NSNotificationCenterTencentPayResult"
 #define NSNotificationCenterPurchaseSuccessViewJump @"NSNotificationCenterPurchaseSuccessViewJump"
+#define NSNotificationCenterPlayVideo               @"NSNotificationCenterPlayVideo"
 //zjj
 
 
 //mjh
+#define NSNotificationCenterContentCollectAction @"NSNotificationCenterContentCollectAction"
+
 #define RATIO (iPad?1:0.6)
 //mjh

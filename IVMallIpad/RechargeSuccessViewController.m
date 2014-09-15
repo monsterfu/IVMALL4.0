@@ -19,7 +19,7 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
-        _jump = NO;
+        _jump = jump;
     }
     return self;
 }
@@ -30,6 +30,10 @@
     _countDownNum = 10;
     
     if (_jump) {
+        if (_countDownTimer) {
+            [_countDownTimer invalidate];
+            _countDownTimer = nil;
+        }
         _countDownTimer = [NSTimer timerWithTimeInterval:1 target:self selector:@selector(countDownFuction) userInfo:nil repeats:YES];
         [[NSRunLoop currentRunLoop]addTimer:_countDownTimer forMode:NSDefaultRunLoopMode];
     }
@@ -37,6 +41,13 @@
     [HttpRequest UserBalanceRequestToken:[AppDelegate App].myUserLoginMode.token delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
     
 }
+
+-(void)viewDidDisappear:(BOOL)animated
+{
+    [_countDownTimer invalidate];
+    _countDownTimer = nil;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -108,6 +119,8 @@
         
         //充值成功 发通知 其他controller更新model
         [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterUserBalanceChange object:balance userInfo:nil];
+        [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterPurchaseSuccessViewJump object:nil userInfo:nil];
+        
     }
 }
 @end

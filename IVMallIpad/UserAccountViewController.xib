@@ -13,6 +13,7 @@
                 <outlet property="closeBtn" destination="LkH-tz-A4H" id="uTL-kY-Hf7"/>
                 <outlet property="purchaseButton" destination="Jar-tZ-aQV" id="Iso-t8-QrC"/>
                 <outlet property="tableView" destination="Pqx-jV-z7K" id="iZm-gh-IVj"/>
+                <outlet property="upView" destination="6jh-sH-OgR" id="POg-3h-gST"/>
                 <outlet property="view" destination="iN0-l3-epB" id="l44-wc-KcZ"/>
             </connections>
         </placeholder>
@@ -58,7 +59,9 @@
                                     <state key="selected" backgroundImage="button_g2.png">
                                         <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     </state>
-                                    <state key="highlighted" backgroundImage="button_g1.png"/>
+                                    <state key="highlighted" backgroundImage="button_g1.png">
+                                        <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    </state>
                                     <connections>
                                         <action selector="chargeButtonTouch:" destination="-1" eventType="touchUpInside" id="pyt-eC-g9F"/>
                                     </connections>
@@ -67,7 +70,7 @@
                             <color key="backgroundColor" red="0.94901960780000005" green="1" blue="0.8980392157" alpha="1" colorSpace="calibratedRGB"/>
                             <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
                         </view>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="JHj-eY-0Cy">
+                        <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="JHj-eY-0Cy">
                             <rect key="frame" x="23" y="145" width="83" height="30"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                             <fontDescription key="fontDescription" type="system" pointSize="13"/>
@@ -75,7 +78,9 @@
                                 <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                             </state>
-                            <state key="selected" backgroundImage="tab_cloud.png"/>
+                            <state key="selected" backgroundImage="tab_cloud.png">
+                                <color key="titleColor" red="1" green="0.58012563890000002" blue="0.118904125" alpha="1" colorSpace="calibratedRGB"/>
+                            </state>
                             <connections>
                                 <action selector="chargeRecordButtonTouch:" destination="-1" eventType="touchUpInside" id="2JO-A0-IzD"/>
                             </connections>
@@ -88,7 +93,9 @@
                                 <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                             </state>
-                            <state key="selected" backgroundImage="tab_cloud.png"/>
+                            <state key="selected" backgroundImage="tab_cloud.png">
+                                <color key="titleColor" red="1" green="0.58012563890000002" blue="0.118904125" alpha="1" colorSpace="calibratedRGB"/>
+                            </state>
                             <connections>
                                 <action selector="purchaseButtonTouch:" destination="-1" eventType="touchUpInside" id="Trw-cK-STo"/>
                             </connections>

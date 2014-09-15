@@ -31,9 +31,9 @@
 // Determine whether or not to bounce in the animation
 // default YES
 @property (nonatomic, assign) BOOL bounces;
-
+@property (nonatomic, assign) BOOL  blur;//是否背景模糊
 // Show the popup
-- (void)popViewController:(UIViewController *)popViewController fromViewController:(UIViewController *)baseViewController finishViewController:(UIViewController*)finishViewController;
+- (void)popViewController:(UIViewController *)popViewController fromViewController:(UIViewController *)baseViewController finishViewController:(UIViewController*)finishViewController blur:(BOOL)blur;
 
 // Dismiss the menu
 // This is called when the window is tapped. If tapped inside the view an item will be selected.

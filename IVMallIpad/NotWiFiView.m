@@ -64,7 +64,7 @@
         }else{
             myImageView.frame = CGRectMake((width-84)/2, (height-150)/2, 84, 62);
             myLabel.frame = CGRectMake((width-200)/2, (height-150)/2+73, 200, 20);
-            myButton.frame = CGRectMake((width-120)/2, (height-150)/2+120, 120, 20);
+            myButton.frame = CGRectMake((width-120)/2, (height-150)/2+110, 120, 20);
             myButton.titleLabel.font = [UIFont boldSystemFontOfSize:13];
         }
         

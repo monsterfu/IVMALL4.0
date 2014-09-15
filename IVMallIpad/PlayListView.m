@@ -13,6 +13,8 @@
 #import "AppDelegate.h"
 #import "PlayListModel.h"
 #import "UIImageView+WebCache.h"
+
+#import "PlayEpisodeListMode.h"
 #define NumberOfLine 5
 @implementation PlayListView
 {
@@ -20,13 +22,16 @@
     UIPageControl*  myPageControl;
     int             totalPage;
     int             currentpage;
-    PlayListModel* myPlayListMode;
+    
+//    PlayListModel* myPlayListMode;
     NSDate* judgeDate;
     int categoryTimeState;//0 今天,1 昨天,2 前天, 3更早以前,4不处理
     
-    NSString* videoName;
-    NSString* contentGuid;
-    NSString* playURL;
+//    NSString* videoName;
+//    NSString* contentGuid;
+//    NSString* playURL;
+    
+    PlayEpisodeListMode* myPlayEpisodeListMode;
     
     UIImageView* noRecordImageView;
     UILabel*     noRecordLabel;
@@ -50,13 +55,34 @@
         
         noRecordLabel = [[UILabel alloc]init];
         noRecordLabel.backgroundColor = [UIColor clearColor];
-        noRecordLabel.text = @"你还没有观看记录";
+        noRecordLabel.text = @"您还没有观看记录";
         noRecordLabel.textColor = [UIColor whiteColor];
         noRecordLabel.textAlignment = NSTextAlignmentCenter;
         [self addSubview:noRecordLabel];
         [noRecordLabel setHidden:YES];
+        
+        
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refreshPlayList) name:NSNotificationCenterPlayVideo object:nil];
     }
     return self;
+}
+
+- (void)refreshPlayList
+{
+    if ([AppDelegate App].myUserLoginMode.token)
+    {
+        currentpage = 0;
+        myPlayEpisodeListMode = nil;
+        judgeDate = [Commonality Date2day:[NSDate date]];
+        categoryTimeState = 0;
+        [HttpRequest PlayEpisodeListRequestToken:[AppDelegate App].myUserLoginMode.token page:1 rows:20 delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+    }
+
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterPlayVideo object:nil];
 }
 
 /*
@@ -77,31 +103,27 @@
         if(self && self.delegate)
         {
             [self.delegate hideBottomView];
+            [self.delegate hideNotWifiView];
             [self.delegate showMBProgressHUD];
         }
         currentpage = 0;
-        myPlayListMode = nil;
+        
+        myPlayEpisodeListMode = nil;
         judgeDate = [Commonality Date2day:[NSDate date]];
         categoryTimeState = 0;
-        [HttpRequest PlayListRequestToken:[AppDelegate App].myUserLoginMode.token delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+        [HttpRequest PlayEpisodeListRequestToken:[AppDelegate App].myUserLoginMode.token page:1 rows:20 delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
     }
 
 }
 
 -(void)GetErr:(ASIHTTPRequest *)request
 {
-    if (request.tag == PLAY_LIST_TYPE)
+    if (request.tag == PLAY_EPISODELIST_TYPE)
     {
         if (self && self.delegate)
         {
             [self.delegate hideMBProgressHUD];
             [self.delegate showNotWifiView];
-        }
-    }else if (request.tag == USER_PREFERENCE_GET_TYPE || request.tag == PRODUCT_PLAY_TYPE)
-    {
-        if (self && self.delegate)
-        {
-            [self.delegate hideMBProgressHUD];
         }
     }
 }
@@ -113,121 +135,64 @@
     NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:responseData options:kNilOptions error:&error];
     if (dictionary==nil)
     {
-        if (request.tag == PLAY_LIST_TYPE)
+        if (request.tag == PLAY_EPISODELIST_TYPE)
         {
             if (self && self.delegate)
             {
                 [self.delegate hideMBProgressHUD];
                 [self.delegate showNotWifiView];
-            }else if (request.tag == USER_PREFERENCE_GET_TYPE || request.tag == PRODUCT_PLAY_TYPE)
-            {
-                if (self && self.delegate)
-                {
-                    [self.delegate hideMBProgressHUD];
-                }
             }
         }
     }else {
         if (self && self.delegate) {
             [self.delegate hideMBProgressHUD];
         }
-        if (request.tag == PLAY_LIST_TYPE) {
-            NSLog(@"Dic=%@",dictionary);
-                myPlayListMode = [[PlayListModel alloc]initWithDictionary:dictionary];
-                if (myPlayListMode.errorCode == 0) {
-                    if (myPlayListMode.pages==0 && myPlayListMode.counts == 0) {
-                        [noRecordLabel setHidden:NO];
-                        [noRecordImageView setHidden:NO];
-                    }else {
-                        [noRecordLabel setHidden:YES];
-                        [noRecordImageView setHidden:YES];
-                    }
-                    if (myPlayListMode.counts%10 == 0) {
-                        totalPage = myPlayListMode.counts/10;
-                    }else{
-                        totalPage = myPlayListMode.counts/10 + 1;
-                    }
-                    
-                    [self makePageControl];
-                    [self makeContentScrollView];
-                    if ([self.delegate pageState] == PAGE_PLAYLIST) {
-                        [self.delegate hideBottomView];
-                        [self setHidden:NO];
-                    }
-                    
-                }
-            
-        }else if (request.tag == USER_PREFERENCE_GET_TYPE)
+        if (request.tag == PLAY_EPISODELIST_TYPE)
         {
-            if (self && self.delegate)
-            {
-                [self.delegate hideMBProgressHUD];
-            }
-            UserPreferenceModel* myUserPre = [[UserPreferenceModel alloc]initWithDictionary:dictionary];
-            if (myUserPre.errorCode == 0) {
-                if([myUserPre.preferenceKey hasPrefix:@"play.positon"]){
-                    int startTime = [myUserPre.preferenceValue intValue];
-                    [IVMallPlayer sharedIVMallPlayer].delegate = self;
-                    [[AppDelegate App] play];
-                    [[IVMallPlayer sharedIVMallPlayer]IVMallPlayerStart:playURL withVideoName:videoName fromViewController:[self.delegate getNavigation] startTime:startTime];
-                    return;
-                    
+            NSLog(@"Dic=%@",dictionary);
+
+            myPlayEpisodeListMode = [[PlayEpisodeListMode alloc]initWithDictionary:dictionary];
+            if (myPlayEpisodeListMode.errorCode == 0) {
+                if (myPlayEpisodeListMode.pages == 0 && myPlayEpisodeListMode.counts == 0) {
+                    [noRecordLabel setHidden:NO];
+                    [noRecordImageView setHidden:NO];
+                }else{
+                    [noRecordLabel setHidden:YES];
+                    [noRecordImageView setHidden:YES];
                 }
+                
+                if (myPlayEpisodeListMode.counts>10) {
+                    totalPage = 2;
+                }else if(myPlayEpisodeListMode.counts<=10 && myPlayEpisodeListMode.counts >0){
+                    totalPage = 1;
+                }else if (myPlayEpisodeListMode.counts <= 0){
+                    totalPage = 0;
+                }
+                
+                [self makePageControl];
+                [self makeContentScrollView];
+                if ([self.delegate pageState] == PAGE_PLAYLIST) {
+                    [self.delegate hideBottomView];
+                    [self setHidden:NO];
+                }
+                
             }
             
-            
-        }else if(request.tag == PRODUCT_PLAY_TYPE){
-            ProductPlayModel* myProductPlayMode = [[ProductPlayModel alloc]initWithDictionary:dictionary];
-            if (myProductPlayMode.errorCode == 0) {
-                playURL = nil;
-                if ([Commonality isEmpty:myProductPlayMode.URI] && [Commonality isEmpty:myProductPlayMode.catchupURI ]) {
-                    [Commonality showErrorMsg:self type:0 msg:@"该视频不存在!"];
-                    if (self && self.delegate)
-                    {
-                        [self.delegate hideMBProgressHUD];
-                    }
-                    return;
-                }else{
-                    if ([Commonality isEmpty:myProductPlayMode.URI]) {
-                        playURL = myProductPlayMode.catchupURI;
-                    }else {
-                        playURL = myProductPlayMode.URI;
-                    }
-                    NSString* preferenceKey1 = [NSString stringWithFormat:@"play.positon.%@",contentGuid];
-                    [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey:preferenceKey1 preferenceValue:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-                }
-            }else{
-                if (self && self.delegate)
-                {
-                    [self.delegate hideMBProgressHUD];
-                }
-                if (myProductPlayMode.errorCode == 204 || myProductPlayMode.errorCode == 224) {
-                    NSString* copyright=[[NSUserDefaults standardUserDefaults] objectForKey:@"copyright_Ivmall"];
-                    if (copyright && [copyright isEqualToString:@"true"] ) {
-                        UIAlertView*   alet=[[UIAlertView alloc]initWithTitle:@"会员权限未开通或已过期，请先开通会员！" message:nil delegate:self cancelButtonTitle:@"稍后开通" otherButtonTitles:@"立即开通", nil];
-                        alet.tag=110;
-                        [alet show];
-                    }
-                    return;
-                }else{
-                    [Commonality showErrorMsg:self type:0 msg:myProductPlayMode.errorMessage];
-                }
-            }
         }
 
     }
 }
 
--(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
-    if (alertView.tag==110) {
-        if (buttonIndex==1) {
-            //进入购买页面
-            if (self && self.delegate) {
-                [self.delegate buyVip];
-            }
-        }
-    }
-}
+//-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+//    if (alertView.tag==110) {
+//        if (buttonIndex==1) {
+//            //进入购买页面
+//            if (self && self.delegate) {
+//                [self.delegate buyVip];
+//            }
+//        }
+//    }
+//}
 
 - (void)makePageControl
 {
@@ -289,16 +254,18 @@
 - (void)makeContentView:(int)page
 {
     UIView* tempContentView = (UIView*)[playListScrollView viewWithTag:10000+page];
-    for (int i=page*(NumberOfLine*2); i<(page+1)*(NumberOfLine*2) && i< myPlayListMode.list.count; i++) {
+    for (int i=page*(NumberOfLine*2); i<(page+1)*(NumberOfLine*2) && i< myPlayEpisodeListMode.list.count/*myPlayListMode.list.count*/; i++) {
         NSLog(@"i=%d",i);
-        ContentMode* tempContentMode = [myPlayListMode.list objectAtIndex:i];
-        NSDate* createTime = [Commonality dateFromString:(tempContentMode.createTime)];
+//        ContentMode* tempContentMode = [myPlayListMode.list objectAtIndex:i];
+        EpisodeMode* tempEpisodeMode = [myPlayEpisodeListMode.list objectAtIndex:i];
+        
+        NSDate* createTime = [Commonality dateFromString:(tempEpisodeMode.latestPlayTime)];
 
         NSArray *nibViews;
         if (iPad) {
-            nibViews=[[NSBundle mainBundle] loadNibNamed:@"ProgramView" owner:self options:nil];
+            nibViews=[[NSBundle mainBundle] loadNibNamed:@"PlayListProgramView" owner:self options:nil];
         }else{
-            nibViews=[[NSBundle mainBundle] loadNibNamed:@"ProgramViewForiPhone" owner:self options:nil];
+            nibViews=[[NSBundle mainBundle] loadNibNamed:@"PlayListProgramViewForiPhone" owner:self options:nil];
         }
         UIView* tempView = [nibViews objectAtIndex:0];
         [tempView setTag:(1000+i)];
@@ -319,14 +286,18 @@
         
         UIImageView* subImageView = (UIImageView*)[tempView viewWithTag:100];
         subImageView.layer.masksToBounds = YES;
-        [subImageView setImageWithURL:[NSURL URLWithString:tempContentMode.contentImg] placeholderImage:[UIImage imageNamed:@"icon_75.png"]];
+//        [subImageView setImageWithURL:[NSURL URLWithString:tempContentMode.contentImg] placeholderImage:[UIImage imageNamed:@"icon_75.png"]];
+        [subImageView setImageWithURL:[NSURL URLWithString:tempEpisodeMode.contentImg] placeholderImage:[UIImage imageNamed:@"icon_75.png"]];
         
         UILabel* subLabel1 = (UILabel*)[tempView viewWithTag:101];
-        [subLabel1 setHidden:YES];
+        subLabel1.text = [NSString stringWithFormat:@"观看到%d集",tempEpisodeMode.latestPlayEpisode];
+        
+        
         
         UILabel* subLabel2 = (UILabel*)[tempView viewWithTag:102];
         
-        subLabel2.text = tempContentMode.contentTitle;
+//        subLabel2.text = tempContentMode.contentTitle;
+        subLabel2.text = tempEpisodeMode.contentTitle;
         
         [tempContentView addSubview:tempView];
         
@@ -357,26 +328,7 @@
             while (!(([createTime timeIntervalSinceDate:judgeDate]>0 && [createTime timeIntervalSinceDate:judgeDate]<24*60*60) || categoryTimeState == 4)) {
                 categoryTimeState++;
                 if (categoryTimeState == 4) {
-//                    UIImageView* imageView = [[UIImageView alloc]init];
-//                    imageView.image = [UIImage imageNamed:@"icon_03.png"];
-//                    [tempView addSubview:imageView];
-//                    
-//                    UILabel* titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(30, 6, 70, 22)];
-//                    titleLabel.backgroundColor = [UIColor clearColor];
-//                    titleLabel.textColor = [UIColor whiteColor];
-//                    
-//                    titleLabel.textAlignment = NSTextAlignmentLeft;
-//                    [imageView addSubview:titleLabel];
-//                    titleLabel.text = @"更早以前";
-//                    if (iPad) {
-//                        imageView.frame = CGRectMake(2, 2, 109, 34);
-//                        titleLabel.frame = CGRectMake(30, 6, 70, 22);
-//                        titleLabel.font = [UIFont boldSystemFontOfSize:13];
-//                    }else{
-//                        imageView.frame = CGRectMake(2, 2, 55, 17);
-//                        titleLabel.frame = CGRectMake(15, 3, 35, 11);
-//                        titleLabel.font = [UIFont boldSystemFontOfSize:7];
-//                    }
+
                     UILabel* titleLabel = [self addTimeLabel:tempView withSuperView:tempContentView];
                     titleLabel.text = @"更早以前";
                     break;
@@ -386,25 +338,7 @@
                 
             }
             if (categoryTimeState < 4) {
-//                UIImageView* imageView = [[UIImageView alloc]init];
-//                imageView.image = [UIImage imageNamed:@"icon_03.png"];
-//                [tempView addSubview:imageView];
-//                
-//                UILabel* titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(30, 6, 70, 22)];
-//                titleLabel.backgroundColor = [UIColor clearColor];
-//                titleLabel.textColor = [UIColor whiteColor];
-//                titleLabel.font = [UIFont boldSystemFontOfSize:13];
-//                titleLabel.textAlignment = NSTextAlignmentLeft;
-//                [imageView addSubview:titleLabel];
-//                if (iPad) {
-//                    imageView.frame = CGRectMake(2, 2, 109, 34);
-//                    titleLabel.frame = CGRectMake(30, 6, 70, 22);
-//                    titleLabel.font = [UIFont boldSystemFontOfSize:13];
-//                }else{
-//                    imageView.frame = CGRectMake(2, 2, 55, 17);
-//                    titleLabel.frame = CGRectMake(15, 3, 35, 11);
-//                    titleLabel.font = [UIFont boldSystemFontOfSize:7];
-//                }
+
                 UILabel* titleLabel = [self addTimeLabel:tempView withSuperView:tempContentView];
                 if (categoryTimeState == 0) {
                     titleLabel.text = @"今天";
@@ -461,15 +395,16 @@
         [[AppDelegate App]click];
         [self setFcous:sender.view];
         int index = sender.view.tag - 1000;
-        if (index >= 0 && index < myPlayListMode.list.count) {
-            if (self && self.delegate) {
-                [self.delegate showMBProgressHUD];
-            }
-            ContentMode* tempContentMode = [myPlayListMode.list objectAtIndex:index];
-            videoName = tempContentMode.contentTitle;
-            contentGuid = tempContentMode.contentGuid;
-            [HttpRequest ProductPlayRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-        }
+//        if (index >= 0 && index < myPlayListMode.list.count) {
+//            if (self && self.delegate) {
+//                [self.delegate showMBProgressHUD];
+//            }
+//            ContentMode* tempContentMode = [myPlayListMode.list objectAtIndex:index];
+//            videoName = tempContentMode.contentTitle;
+//            contentGuid = tempContentMode.contentGuid;
+//            [HttpRequest ProductPlayRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+//        }
+        [self enterContentEpisodeItemListView:index];
         [self blurFcous:sender.view];
     }else if([sender isKindOfClass:[UILongPressGestureRecognizer class]]){
         if (sender.state == UIGestureRecognizerStateBegan) {
@@ -478,18 +413,33 @@
         }else if(sender.state == UIGestureRecognizerStateEnded){
             [self blurFcous:sender.view];
             int index = sender.view.tag - 1000;
-            if (index >= 0 && index < myPlayListMode.list.count) {
-                if (self && self.delegate) {
-                    [self.delegate showMBProgressHUD];
-                }
-                ContentMode* tempContentMode = [myPlayListMode.list objectAtIndex:index];
-                videoName = tempContentMode.contentTitle;
-                contentGuid = tempContentMode.contentGuid;
-                [HttpRequest ProductPlayRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-            }
+//            if (index >= 0 && index < myPlayListMode.list.count) {
+//                if (self && self.delegate) {
+//                    [self.delegate showMBProgressHUD];
+//                }
+//                ContentMode* tempContentMode = [myPlayListMode.list objectAtIndex:index];
+//                videoName = tempContentMode.contentTitle;
+//                contentGuid = tempContentMode.contentGuid;
+//                [HttpRequest ProductPlayRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+//            }
+            [self enterContentEpisodeItemListView:index];
         }
     
     }
+}
+
+- (void)enterContentEpisodeItemListView:(int)index
+{
+    EpisodeMode* tempContentMode = [myPlayEpisodeListMode.list objectAtIndex:index];
+    ContentEpisodeItemListViewController* myContentEpisodeItemListViewController = [[ContentEpisodeItemListViewController alloc]init];
+    myContentEpisodeItemListViewController.episodeGuid = tempContentMode.contentGuid;
+    myContentEpisodeItemListViewController.langs = tempContentMode.langs;
+    myContentEpisodeItemListViewController.latestPlayLang = tempContentMode.latestPlayLang;
+    if (self && self.delegate) {
+        [[self.delegate getNavigation] pushViewController:myContentEpisodeItemListViewController animated:NO];
+    }
+
+
 }
 
 - (void)setFcous:(UIView*)view
@@ -512,25 +462,25 @@
     UIImageView* subImageView = (UIImageView*)[view viewWithTag:100];
     subImageView.layer.borderWidth = 0;
 }
--(void)PlayerCallBack:(PlayerCallBackEventType)callBackEventType withParameter: (NSMutableDictionary *)callBackInfo
-{
-    [IVMallPlayer sharedIVMallPlayer].delegate=nil;
-    if (callBackEventType == PlayerWillPlaybackEnded) {
-        
-        
-    }else if(callBackEventType == PlayerUserExited){
-        NSLog(@"callBackInfo=%@",callBackInfo);
-        int playTime = [[callBackInfo objectForKey:@"time"]intValue];
-        NSString* preferenceKey1 = [NSString stringWithFormat:@"play.positon.%@",contentGuid];
-        NSString* preferenceValue1 = [NSString stringWithFormat:@"%d",playTime];
-        [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey:preferenceKey1 preferenceValue:preferenceValue1 delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-    }else if(callBackEventType == PlayerWillReturnFromDMRPlay){
-        [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterExitFromDMC object:@"YES"];
-        return;
-    }
-    [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterExitFromDMC object:@"NO"];
-    [self show];
-}
+//-(void)PlayerCallBack:(PlayerCallBackEventType)callBackEventType withParameter: (NSMutableDictionary *)callBackInfo
+//{
+//    [IVMallPlayer sharedIVMallPlayer].delegate=nil;
+//    if (callBackEventType == PlayerWillPlaybackEnded) {
+//        
+//        
+//    }else if(callBackEventType == PlayerUserExited){
+//        NSLog(@"callBackInfo=%@",callBackInfo);
+//        int playTime = [[callBackInfo objectForKey:@"time"]intValue];
+//        NSString* preferenceKey1 = [NSString stringWithFormat:@"play.positon.%@",contentGuid];
+//        NSString* preferenceValue1 = [NSString stringWithFormat:@"%d",playTime];
+//        [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey:preferenceKey1 preferenceValue:preferenceValue1 delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+//    }else if(callBackEventType == PlayerWillReturnFromDMRPlay){
+//        [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterExitFromDMC object:@"YES"];
+//        return;
+//    }
+//    [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterExitFromDMC object:@"NO"];
+//    [self show];
+//}
 
 
 #pragma scrollView的代理方法

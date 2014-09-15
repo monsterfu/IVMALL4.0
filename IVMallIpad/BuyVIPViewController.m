@@ -10,6 +10,9 @@
 
 #define VIPMODEL_KEY  @"vipmodel_key"
 
+#define PRODUCT_HEIGHT   (iPad?140:78)
+#define PRODUCT_CELL   (iPad?(@"BuyVIPCell"):(@"BuyVIPCell_IPhone"))
+
 @interface BuyVIPViewController ()
 
 @end
@@ -32,15 +35,14 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     
+    UIView* view = [UIView new];
+    [view setBackgroundColor:[UIColor clearColor]];
+    [_tableView setTableFooterView:view];
+    [_tableView setBackgroundColor:[UIColor clearColor]];
+    
     _vipArray = [NSMutableArray array];
     self.view.frame = [UIScreen mainScreen].bounds;
     [HttpRequest VipListRequestToken:[AppDelegate App].myUserLoginMode.token delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-    
-    [_oneButton setHidden:YES];
-    [_twoButton setHidden:YES];
-    _oneButton.exclusiveTouch = YES;
-    _twoButton.exclusiveTouch = YES;
-
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -57,23 +59,9 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (IBAction)oneButtonTouch:(UIButton *)sender {
-    [[AppDelegate App]click];
-    if (self.delegate&&[self.delegate respondsToSelector:@selector(purchaseProduct:)]) {
-        [self.delegate purchaseProduct:[_vipArray objectAtIndex:0]];
-    }
-}
-
-- (IBAction)twoButtonTouch:(UIButton *)sender {
-    [[AppDelegate App]click];
-    if (self.delegate&&[self.delegate respondsToSelector:@selector(purchaseProduct:)]) {
-        [self.delegate purchaseProduct:[_vipArray objectAtIndex:1]];
-    }
-}
-
 - (IBAction)closeButtonTouch:(UIButton *)sender {
     [[AppDelegate App]click];
-    [[PopUpViewController shareInstance]dismissAnimated:YES];
+    [[PopUpViewController shareInstance]dismissAnimated:NO];
 }
 
 
@@ -85,15 +73,8 @@
     NSDictionary *dictionary = [USER_DEFAULT objectForKey:VIPMODEL_KEY];
     BuyListModel * fm = [[BuyListModel alloc] initWithVipListDictionary:dictionary modelList:_vipArray page:1];
     if (fm.result==0) {
-        BuyListModel * payListM  = [_vipArray objectAtIndex:0];
-        _productNameLabel.text = payListM.productTitle;
-        _productDesLabel.text =  payListM.productDescription;
-        payListM  = [_vipArray objectAtIndex:1];
-        _productName1Label.text = payListM.productTitle;
-        _productDes1Label.text =  payListM.productDescription;
-        
-        [_oneButton setHidden:NO];
-        [_twoButton setHidden:NO];
+        [_activityIndicatorView stopAnimating];
+        [_tableView reloadData];
     }
 }
 
@@ -103,9 +84,6 @@
     NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:responseData options:kNilOptions error:&error];
     NSLog(@"error is %@",error);
     
-    [_viewOne setHidden:NO];
-    [_viewTwo setHidden:NO];
-    
     if (dictionary==nil) {
         [Commonality showErrorMsg:self.view type:0 msg:@"网络连接异常！"];
     }else{
@@ -113,18 +91,10 @@
         
         BuyListModel * fm = [[BuyListModel alloc] initWithVipListDictionary:dictionary modelList:_vipArray page:1];
         if (fm.result==0) {
-            BuyListModel * payListM  = [_vipArray objectAtIndex:0];
-            _productNameLabel.text = payListM.productTitle;
-            _productDesLabel.text =  payListM.productDescription;
-            payListM  = [_vipArray objectAtIndex:1];
-            _productName1Label.text = payListM.productTitle;
-            _productDes1Label.text =  payListM.productDescription;
-            
+            [_activityIndicatorView stopAnimating];
+            [_tableView reloadData];
             [USER_DEFAULT setObject:dictionary forKey:VIPMODEL_KEY];
             [USER_DEFAULT synchronize];
-            
-            [_oneButton setHidden:NO];
-            [_twoButton setHidden:NO];
         }
         else
         {
@@ -132,5 +102,38 @@
         }
     }
 }
+#pragma mark - UITableViewDelegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return PRODUCT_HEIGHT;
+}
 
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [_vipArray count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UINib* cellNib = [UINib nibWithNibName:PRODUCT_CELL bundle:[NSBundle mainBundle]];
+    [tableView registerNib:cellNib forCellReuseIdentifier:@"buyVipCellIdentifier"];
+    BuyVIPCell* cell = [tableView dequeueReusableCellWithIdentifier:@"buyVipCellIdentifier" forIndexPath:indexPath];
+    BuyListModel * payListM  = [_vipArray objectAtIndex:indexPath.row];
+    cell.productName.text = payListM.productTitle;
+    cell.productDetail.text = payListM.productDescription;
+    cell.delegate = self;
+    cell.buyButton.exclusiveTouch = YES;
+    cell.backgroundColor = [UIColor clearColor];
+    cell.tag = indexPath.row;
+    return cell;
+}
+
+#pragma mark -BuyVIPCellDelegate
+-(void)buyButtonTouchWithTag:(NSUInteger)index
+{
+    [[AppDelegate App]click];
+    if (self.delegate&&[self.delegate respondsToSelector:@selector(purchaseProduct:)]) {
+        [self.delegate purchaseProduct:[_vipArray objectAtIndex:index]];
+    }
+}
 @end

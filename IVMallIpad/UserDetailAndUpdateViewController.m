@@ -11,6 +11,7 @@
 #import "Commonality.h"
 #import "ASIClasses/ASIHTTPRequest.h"
 #import "Macro.h"
+#import "UIImageView+WebCache.h"
 
 @interface UserDetailAndUpdateViewController ()
 
@@ -28,13 +29,38 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(UserImagehadGet:) name:NSNotificationCenterUserImage object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(boxValueChanged:) name:UITextFieldTextDidChangeNotification object:nil];
     }
     return self;
 }
 
+- (void)dealloc
+{
+//    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterUserImage object:nil];
+//    [[NSNotificationCenter defaultCenter]removeObserver:self name:UITextFieldTextDidChangeNotification object:nil];
+}
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    if(iPad){
+        _UserDefinedPhotoImageView.layer.cornerRadius = 50;
+    }else {
+//        _UserDefinedPhotoImageView.layer.cornerRadius = 15;
+    }
+    _UserDefinedPhotoImageView.layer.borderColor = [UIColor whiteColor].CGColor;
+    _UserDefinedPhotoImageView.layer.borderWidth = 0.0f;
+    _UserDefinedPhotoImageView.layer.rasterizationScale = [UIScreen mainScreen].scale;
+    _UserDefinedPhotoImageView.layer.shouldRasterize = YES;
+    _UserDefinedPhotoImageView.clipsToBounds = YES;
+    _UserDefinedPhotoImageView.userInteractionEnabled = YES;
+//    UITapGestureRecognizer* tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(changePicture:)];
+//    [_UserDefinedPhotoImageView addGestureRecognizer:tapGesture];
+    UIImage* tempImage = [Commonality createImageWithColor:[[UIColor alloc]initWithRed:0 green:0 blue:0 alpha:0.2]];
+    [_userDefinedPhotoButton setBackgroundImage:tempImage forState:UIControlStateHighlighted];
+    _userDefinedPhotoButton.layer.cornerRadius = (iPad?50:15);
+    _userDefinedPhotoButton.clipsToBounds = YES;
+    [_userDefinedPhotoButton addTarget:self action:@selector(changePicture:) forControlEvents:UIControlEventTouchUpInside];
     
     [self addResetPasswordView];
     [self addUserInfoView];
@@ -47,7 +73,7 @@
     [_userInfoView addSubview:myNotWiFiView];
         
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(boxValueChanged:) name:UITextFieldTextDidChangeNotification object:nil];
+
     
     tapForFocusOff = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(focusChanged:)];
     [self.view addGestureRecognizer:tapForFocusOff];
@@ -57,19 +83,23 @@
     [self.view addSubview:myMBProgressHUD];
     myMBProgressHUD.labelText = @"正在请求";
     
-    _lowLabel.layer.cornerRadius = 10;
-    _midLabel.layer.cornerRadius = 10;
-    _highLabel.layer.cornerRadius = 10;
+    _lowLabel.layer.cornerRadius = (iPad?10:5);
+    _midLabel.layer.cornerRadius = (iPad?10:5);
+    _highLabel.layer.cornerRadius = (iPad?10:5);
     
-    _scrollViewBg.delegate = self;
-//    _scrollViewBg.backgroundColor = [UIColor blackColor];
-//    [_scrollViewBg setContentOffset:CGPointMake(200,500)];
+    
+    _UserInfoScrollViewBg.delegate = self;
     if (iPad) {
-        _scrollViewBg.contentSize = CGSizeMake(500, 600);
+        _UserInfoScrollViewBg.contentSize = CGSizeMake(500, 330);
     }else{
-        _scrollViewBg.contentSize = CGSizeMake(250, 250);
+        _UserInfoScrollViewBg.contentSize = CGSizeMake(250, 250);
     }
-    _scrollViewBg.scrollEnabled = YES;
+    if (iPad) {
+        _resetPasswordScrollViewBg.contentSize = CGSizeMake(500, 370);
+    }else{
+        _resetPasswordScrollViewBg.contentSize = CGSizeMake(250, 250);
+    }
+    _UserInfoScrollViewBg.scrollEnabled = YES;
         // Do any additional setup after loading the view from its nib.
 }
 
@@ -79,6 +109,174 @@
         _closeBtn.frame = CGRectMake((iPhone5?89:46), 32, 30, 30);
     }
     [self.view bringSubviewToFront:_closeBtn];
+    if ([self.navigationController childViewControllers].count >2) {
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-18.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-19.png"] forState:UIControlStateHighlighted];
+    }else{
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close_sel.png"] forState:UIControlStateHighlighted];
+    }
+}
+
+//自定义头像
+#pragma mark  自定义头像 NSNotificationCenterUserImage
+-(void)UserImagehadGet:(NSNotification*) notification
+{
+    
+    id object = [notification object];
+    if ([object isKindOfClass:[NSString class]])
+    {
+        [_UserDefinedPhotoImageView setImageWithURL:[NSURL URLWithString:object] placeholderImage:[UIImage imageNamed:@"head2.png"]];
+    }else if([object isKindOfClass:[UIImage class]])
+    {
+        [_UserDefinedPhotoImageView setImage:object];
+    }
+    
+}
+
+-(void)changePicture:(UIButton*)sender
+{
+    [[AppDelegate App]click];
+    if([AppDelegate App].myUserLoginMode.token)//登录
+    {
+        UIActionSheet*action = [[UIActionSheet alloc]initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"拍照",@"选择本地图片", nil];
+        [action showInView:self.view];
+    }else{
+//        UserLoginViewController* myUserLoginViewController = [[UserLoginViewController alloc]init];
+//        myUserLoginViewController.myActionState = UnKnownAction;
+//        [self.navigationController pushViewController:myUserLoginViewController animated:NO];
+    }
+}
+
+#pragma mark -UIActionSheet delegate
+
+-(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
+    if (buttonIndex==0) {
+        [[AppDelegate App]click];
+        UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
+        imagePickerController.delegate = self;
+        imagePickerController.allowsEditing = YES;
+        imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+        
+        [self presentViewController:imagePickerController animated:YES completion:^{
+
+        }];
+        
+    }else if (buttonIndex==1){
+        [[AppDelegate App]click];
+        UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
+        imagePickerController.delegate = self;
+        imagePickerController.allowsEditing = YES;
+        imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        
+        [self presentViewController:imagePickerController animated:YES completion:^{
+
+        }];
+    }else if (buttonIndex==2){
+        
+    }
+}
+
+#pragma mark - image picker delegte
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info{
+    NSLog(@"从1");
+    UIImage* image = [info objectForKey:UIImagePickerControllerEditedImage];
+    UIImage* newImg = [self imageWithImageSimple:image scaledToSize:CGSizeMake(300, 300)];
+    if (newImg) {
+        [NSThread detachNewThreadSelector:@selector(postData:) toTarget:self withObject:newImg];
+    }
+    [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterUserImage object:newImg];
+    [self dismissViewControllerAnimated:YES completion:^{
+
+    }];
+}
+
+-(void)postData:(UIImage*)image
+{
+    NSString* url = [NSString stringWithFormat:@"%@/user/updateAvatar.action?token=%@",BASE,[AppDelegate App].myUserLoginMode.token];
+    NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]
+                                                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                                       timeoutInterval:10];
+    NSString *TWITTERFON_FORM_BOUNDARY = @"0xKhTmLbOuNdArY";
+    
+    //分界线 --AaB03x
+    NSString *MPboundary=[[NSString alloc]initWithFormat:@"--%@",TWITTERFON_FORM_BOUNDARY];
+    //结束符 AaB03x--
+    NSString *endMPboundary=[[NSString alloc]initWithFormat:@"%@--",MPboundary];
+    //得到图片的data
+    NSData* data;
+    if (UIImagePNGRepresentation(image)) {
+        //返回为png图像。
+        data = UIImagePNGRepresentation(image);
+    }else {
+        //返回为JPEG图像。
+        data = UIImageJPEGRepresentation(image, 1.0);
+    }
+    NSMutableString *body=[[NSMutableString alloc]init];
+    [body appendFormat:@"%@\r\n",MPboundary];
+    
+    //声明pic字段，文件名为boris.png
+    [body appendFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"%@\"\r\n",@"file",@"file"];
+    //声明上传文件的格式
+    [body appendFormat:@"Content-Type: image/jpge,image/gif, image/jpeg, image/pjpeg, image/png\r\n\r\n"];
+    //声明结束符：--AaB03x--
+    NSString *end=[[NSString alloc]initWithFormat:@"\r\n%@",endMPboundary];
+    //声明myRequestData，用来放入http body
+    NSMutableData *myRequestData=[NSMutableData data];
+    
+    //将body字符串转化为UTF8格式的二进制
+    [myRequestData appendData:[body dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    [myRequestData appendData:data];
+    
+    [myRequestData appendData:[end dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    //设置HTTPHeader中Content-Type的值
+    NSString *content=[[NSString alloc]initWithFormat:@"multipart/form-data; boundary=%@",TWITTERFON_FORM_BOUNDARY];
+    //设置HTTPHeader
+    [request setValue:content forHTTPHeaderField:@"Content-Type"];
+    //设置Content-Length
+    [request setValue:[NSString stringWithFormat:@"%d", [myRequestData length]] forHTTPHeaderField:@"Content-Length"];
+    //设置http body
+    [request setHTTPBody:myRequestData];
+    //http method
+    [request setHTTPMethod:@"POST"];
+    
+    
+    NSHTTPURLResponse *urlResponese = nil;
+    NSError *error = [[NSError alloc]init];
+    NSData* resultData = [NSURLConnection sendSynchronousRequest:request   returningResponse:&urlResponese error:&error];
+    NSString* result= [[NSString alloc] initWithData:resultData encoding:NSUTF8StringEncoding];
+    NSLog(@"返回结果=====%@,urlResponese statusCode=%d",result,[urlResponese statusCode]);
+}
+
+-(UIImage *) imageWithImageSimple:(UIImage*) image scaledToSize:(CGSize) newSize{
+    newSize.height=image.size.height*(newSize.width/image.size.width);
+    UIGraphicsBeginImageContext(newSize);
+    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    UIImage *newImage=UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return  newImage;
+}
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker{
+    NSLog(@"从取消");
+    [self dismissViewControllerAnimated:YES completion:^{
+        
+    }];
+    
+}
+
+//为了支持iOS6
+-(BOOL)shouldAutorotate
+{
+    return YES;
+}
+
+//为了支持iOS6
+-(NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskLandscape;
 }
 
 -(void)setIndividualInfo
@@ -88,6 +286,7 @@
     _gender.selectedSegmentIndex = [[AppDelegate App].UserInfo.gender isEqualToString:@"male"]?0:1;
     _birthdayLabel.text = [AppDelegate App].UserInfo.birthday;
     _addressInputTextView.text = [AppDelegate App].UserInfo.address;
+    [_UserDefinedPhotoImageView setImageWithURL:[NSURL URLWithString:[AppDelegate App].UserInfo.userImg] placeholderImage:[UIImage imageNamed:@"head2.png"]];
 }
 
 -(void)addUserInfoView
@@ -122,18 +321,46 @@
     // 设置UIDatePicker的显示模式
     [_datePicker setDatePickerMode:UIDatePickerModeDate];
     
+    
+//    _gender.segmentedControlStyle = UISegmentedControlStyleBar;
+
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:[UIColor whiteColor],UITextAttributeTextColor,  [UIFont boldSystemFontOfSize:(iPad?18:15)],UITextAttributeFont ,[UIColor whiteColor],UITextAttributeTextShadowColor ,nil];
+    [_gender setTitleTextAttributes:dic forState:UIControlStateSelected];
+    NSDictionary *dic2 = [NSDictionary dictionaryWithObjectsAndKeys:[Commonality colorFromHexRGB:@"dddddd"],UITextAttributeTextColor,  [UIFont systemFontOfSize:(iPad?15:13)],UITextAttributeFont ,[UIColor whiteColor],UITextAttributeTextShadowColor ,nil];
+    [_gender setTitleTextAttributes:dic2 forState:UIControlStateNormal];
+
+    _gender.layer.masksToBounds = YES;
+    _gender.layer.borderWidth = 1.5f;
+    _gender.layer.cornerRadius = 4;
+    _gender.layer.borderColor = [Commonality colorFromHexRGB:@"69a029"].CGColor;
+//    _gender.backgroundColor = [Commonality colorFromHexRGB:@"69a029"];
+//    [_gender setTintColor:[UIColor whiteColor]];
     [_gender setTintColor:[Commonality colorFromHexRGB:@"69a029"]];
-    if (!iPad) {
+
+//    [_gender setWidth:(iPad?58:27) forSegmentAtIndex:_gender.selectedSegmentIndex];
+
+    if (iPad) {
+        _gender.frame = CGRectMake(357, 7, 123, 36);
+    }else{
         _gender.frame = CGRectMake(185, 5, 60, 20);
     }
     
+    [_gender addTarget:self action:@selector(genderSelected:) forControlEvents:UIControlEventValueChanged];
+    
+    [_gender setBackgroundImage:[UIImage imageNamed:@"gender_bg@2x"] forState:UIControlStateNormal barMetrics:UIBarMetricsLandscapePhonePrompt];
+    
+    
+    
     _resetPasswordBtn.titleLabel.textColor = [UIColor blackColor];
     
-    
     [HttpRequest UserDetailRequestToken:[AppDelegate App].myUserLoginMode.token delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-
 }
 
+-(void)genderSelected:(UISegmentedControl *)seg
+{
+//    [_gender setImage:[UIImage imageNamed:@"gender_bg@2x"] forSegmentAtIndex:seg.selectedSegmentIndex];
+//    [_gender setWidth:(iPad?50:27) forSegmentAtIndex:seg.selectedSegmentIndex];
+}
 
 
 -(void)addResetPasswordView
@@ -141,7 +368,7 @@
 //    _oldPasswordTextField = [_oldPasswordTextField initWithFrame:_oldPasswordTextField.frame cornerRadio:10.0 borderColor:[UIColor grayColor] borderWidth:0.0 lightColor:[Commonality colorFromHexRGB:@"ffd500"] lightSize:3.9f lightBorderColor:[UIColor greenColor]];
     [_oldPasswordTextField setStyle];
     _oldPasswordTextField.delegate = self;
-    _oldPasswordTextField.layer.cornerRadius = 10;
+    _oldPasswordTextField.layer.cornerRadius = (iPad?10:5);
     _oldPasswordTextField.secureTextEntry = YES;
     _oldPasswordTextField.tag = 2001;
     _oldPasswordTextField.keyboardType = UIKeyboardTypeASCIICapable;
@@ -149,7 +376,7 @@
 //    _myNewPasswordTextField = [_myNewPasswordTextField initWithFrame:_myNewPasswordTextField.frame cornerRadio:10.0 borderColor:[UIColor grayColor] borderWidth:0.0 lightColor:[Commonality colorFromHexRGB:@"ffd500"] lightSize:3.9f lightBorderColor:[UIColor greenColor]];
     [_myNewPasswordTextField setStyle];
     _myNewPasswordTextField.delegate = self;
-    _myNewPasswordTextField.layer.cornerRadius = 10;
+    _myNewPasswordTextField.layer.cornerRadius = (iPad?10:5);
     _myNewPasswordTextField.secureTextEntry = YES;
     _myNewPasswordTextField.tag = 2002;
     _myNewPasswordTextField.keyboardType = UIKeyboardTypeASCIICapable;
@@ -157,10 +384,13 @@
 //    _verifyNewPasswordTextField = [_verifyNewPasswordTextField initWithFrame:_verifyNewPasswordTextField.frame cornerRadio:10.0 borderColor:[UIColor grayColor] borderWidth:0.0 lightColor:[Commonality colorFromHexRGB:@"ffd500"] lightSize:3.9f lightBorderColor:[UIColor greenColor]];
     [_verifyNewPasswordTextField setStyle];
     _verifyNewPasswordTextField.delegate = self;
-    _verifyNewPasswordTextField.layer.cornerRadius = 10;
+    _verifyNewPasswordTextField.layer.cornerRadius = (iPad?10:5);
     _verifyNewPasswordTextField.secureTextEntry = YES;
     _verifyNewPasswordTextField.tag = 2003;
     _verifyNewPasswordTextField.keyboardType = UIKeyboardTypeASCIICapable;
+    
+    
+    _doResetPasswordBtn.layer.cornerRadius = 5;
 }
 
 -(void)selectBirthday
@@ -217,6 +447,10 @@
     
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     
+    if (_oldPasswordTextField.text.length == 0) {
+        [_oldPasswordTextField showWithError:@"旧密码输入不能为空"];
+        return;
+    }
     if (_myNewPasswordTextField.text.length == 0) {
         [_myNewPasswordTextField showWithError:@"密码输入不能为空"];
         return;
@@ -238,7 +472,7 @@
         return;
     }
     if ([_myNewPasswordTextField.text isEqualToString:_verifyNewPasswordTextField.text] == NO) {
-        [_verifyNewPasswordTextField showWithError: @"2次密码输入不一致，请重新输入！"];
+        [_verifyNewPasswordTextField showWithError: @"两次密码不一致哦!"];
         return;
     }
 //    if ([_myNewPasswordTextField.text isEqualToString:[userDefaults objectForKey:@"password2"]] == YES) {
@@ -276,6 +510,11 @@
         return;
     }
     
+    if (_nickNameInputField.text == nil || [_nickNameInputField.text isEqualToString:@""]) {
+        [Commonality showErrorMsg:self.view type:0 msg:@"昵称不能为空哦！"];
+        return;
+    }
+    
     [HttpRequest UserUpdateRequestToken:[AppDelegate App].myUserLoginMode.token nickName:_nickNameInputField.text email:_emailInputField.text birthday:_birthdayLabel.text gender:(_gender.selectedSegmentIndex == 0?@"male":@"female") address:_addressInputTextView.text delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
     [myMBProgressHUD show:YES];
 }
@@ -309,6 +548,8 @@
 
 - (IBAction)close:(id)sender {
             [[AppDelegate App]click];
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterUserImage object:nil];
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:UITextFieldTextDidChangeNotification object:nil];
     [self.navigationController popViewControllerAnimated:NO];
 }
 
@@ -418,7 +659,7 @@
     else if (textField.tag == 2003)
     {
         if ([_verifyNewPasswordTextField.text isEqualToString:_myNewPasswordTextField.text]==NO && _verifyNewPasswordTextField.text.length != 0 && _myNewPasswordTextField.text.length != 0){
-            [_verifyNewPasswordTextField showWithError: @"两次输入密码不一样，请重新输入!"];
+            [_verifyNewPasswordTextField showWithError: @"两次密码不一致哦!"];
             return YES;
         }
     }
@@ -446,11 +687,9 @@
         [self setUserInfoViewFrame:YES];
     }
     if (textField == _verifyNewPasswordTextField) {
-        [self setResetPasswordViewFrame:YES];
+//        [self setResetPasswordViewFrame:YES];
     }
-//    if ([textField isKindOfClass:[JYTextField class]]) {
-//        [(JYTextField*)textField beginEditing];
-//    }
+
     if (textField == _oldPasswordTextField || textField == _myNewPasswordTextField || textField == _verifyNewPasswordTextField) {
         [textField beginEditing];
     }
@@ -472,11 +711,9 @@
         [self setUserInfoViewFrame:NO];
     }
     if (textField == _verifyNewPasswordTextField) {
-        [self setResetPasswordViewFrame:NO];
+//        [self setResetPasswordViewFrame:NO];
     }
-//    if ([textField isKindOfClass:[JYTextField class]]) {
-//        [(JYTextField*)textField endEditing];
-//    }
+
     if (textField == _oldPasswordTextField || textField == _myNewPasswordTextField || textField == _verifyNewPasswordTextField) {
         [textField endEditing];
     }
@@ -505,17 +742,20 @@
             return YES;
         }
     }
-    
+    if (textField == _oldPasswordTextField) {
+        if (range.location > 19 && ![textField.text isEqualToString:@""]) {
+            [_oldPasswordTextField showWithError:@"密码不能超过20位！"];
+            return NO;
+        }
+    }
     if (textField == _myNewPasswordTextField) {
         if (range.location > 19 && ![textField.text isEqualToString:@""]) {
-//            [Commonality showErrorMsg:self.view type:0 msg:@"密码不能超过20位！"];
             [_myNewPasswordTextField showWithError:@"密码不能超过20位！"];
             return NO;
         }
     }
     if (textField == _verifyNewPasswordTextField) {
         if (range.location > 19 && ![textField.text isEqualToString:@""]) {
-            //            [Commonality showErrorMsg:self.view type:0 msg:@"密码不能超过20位！"];
             [_verifyNewPasswordTextField showWithError:@"密码不能超过20位！"];
             return NO;
         }
@@ -529,7 +769,9 @@
 
 - (BOOL)textFieldShouldClear:(UITextField *)textField
 {
-    [self setLabelBgColor];
+    if (textField.tag == 2002) {
+        [self setLabelBgColor];
+    }
     return YES;
 }
 
@@ -545,35 +787,37 @@
 -(void)boxValueChanged:(UITextField *)textField
 {
     if (_isPasswordFiledEdting) {
-        UITextField * textField = (UITextField *)[self.view viewWithTag:2002];
-        int ret=[Commonality judgePasswordStrength:textField.text];
-        
-        switch (ret) {
-            case 0:
-                _lowLabel.backgroundColor=[Commonality colorFromHexRGB:@"eeaaaa"];
+        UITextField * NewtextField = (UITextField *)[self.view viewWithTag:2002];
+  
+            int ret=[Commonality judgePasswordStrength:NewtextField.text];
+            
+            switch (ret) {
+                case 0:
+                    _lowLabel.backgroundColor=[Commonality colorFromHexRGB:@"eeaaaa"];
+                    _midLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
+                    _highLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
+                    
+                    break;
+                case 1:
+                    _lowLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
+                    _midLabel.backgroundColor=[Commonality colorFromHexRGB:@"eed0a1"];
+                    _highLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
+                    break;
+                case 2:
+                    _lowLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
+                    _midLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
+                    _highLabel.backgroundColor=[Commonality colorFromHexRGB:@"b0eeaa"];
+                    break;
+                default:
+                    break;
+            }
+            if (NewtextField.text.length == 0) {
+                _lowLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
                 _midLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
                 _highLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
-                
-                break;
-            case 1:
-                _lowLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
-                _midLabel.backgroundColor=[Commonality colorFromHexRGB:@"eed0a1"];
-                _highLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
-                break;
-            case 2:
-                _lowLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
-                _midLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
-                _highLabel.backgroundColor=[Commonality colorFromHexRGB:@"b0eeaa"];
-                break;
-            default:
-                break;
+            }
         }
-        if (textField.text.length == 0) {
-            _lowLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
-            _midLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
-            _highLabel.backgroundColor=[Commonality colorFromHexRGB:@"dfdfdf"];
-        }
-    }
+    
 }
 
 
@@ -601,8 +845,8 @@
         }
 //        textfieldlabel.text=[NSString stringWithFormat:@"%d",temp];
         
-        if (range.location>119) {
-            [Commonality showErrorMsg:self.view type:0 msg:@"地址不能超过120位！"];
+        if (range.location>29) {
+            [Commonality showErrorMsg:self.view type:0 msg:@"地址不能超过30位！"];
             return NO;
         }else{
             return YES;
@@ -619,9 +863,9 @@
     _addressCell.backgroundColor = [UIColor whiteColor];
 
     if (iPad) {
-        _scrollViewBg.frame = CGRectMake(25, 0, 500, 250);
+        _UserInfoScrollViewBg.frame = CGRectMake(25, 0, 500, 250);
     }else{
-//        _scrollViewBg.frame = CGRectMake(15, -50, 250, 150);
+//        _UserInfoScrollViewBg.frame = CGRectMake(15, -50, 250, 150);
     }
     return YES;
 }
@@ -629,9 +873,9 @@
 {
     _addressInputTextView.textAlignment = NSTextAlignmentRight;
     if (iPad) {
-        _scrollViewBg.frame = CGRectMake(25, 50, 500, 250);
+        _UserInfoScrollViewBg.frame = CGRectMake(25, 50, 500, 250);
     }else{
-//        _scrollViewBg.frame = CGRectMake(15, 20, 250, 150);
+//        _UserInfoScrollViewBg.frame = CGRectMake(15, 20, 250, 150);
     }
     
     return YES;
@@ -658,13 +902,13 @@
         if (iPad) {
             _userInfoView.frame = CGRectMake(202, -60, 558, 548);
         }else{
-            _userInfoView.frame = CGRectMake(96, -100, 289, 260);
+            _userInfoView.frame = CGRectMake(91, -100, 289, 260);
         }
     }else{
         if (iPad) {
             _userInfoView.frame = CGRectMake(202, 0, 558, 548);
         }else{
-            _userInfoView.frame = CGRectMake(96, 0, 289, 260);
+            _userInfoView.frame = CGRectMake(91, 0, 289, 260);
         }
     }
 }
@@ -675,13 +919,13 @@
         if (iPad) {
             _resetPasswordView.frame = CGRectMake(202, -50, 558, 548);
         }else{
-            _resetPasswordView.frame = CGRectMake(96, -80, 289, 260);
+            _resetPasswordView.frame = CGRectMake(91, -80, 289, 260);
         }
     }else{
         if (iPad) {
             _resetPasswordView.frame = CGRectMake(202, 0, 558, 548);
         }else{
-            _resetPasswordView.frame = CGRectMake(96, 0, 289, 260);
+            _resetPasswordView.frame = CGRectMake(91, 0, 289, 260);
         }
     }
 }

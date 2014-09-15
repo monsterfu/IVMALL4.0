@@ -19,7 +19,7 @@
 //5.0.3	首次安装应用
 +(void)AppInstallDelegate:(id)delegate finishSel:(SEL)finishSel  failSel:(SEL)failSel;
 //5.0.5	获取提示信息(v4.0)
-+(void)AppTipsRequestDelegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel;
++(void)AppTipsRequestRequestToken:(NSString*)token key:(NSString*)key delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel;
 //5.1.1	用户注册
 +(void)UserRegisterRequestMobile:(NSString*)mobile password:(NSString *)password checkcode:(NSString *)checkcode couponcode:(NSString *)couponcode delegate:(id)delegate finishSel:(SEL)finishSel  failSel:(SEL)failSel;
 //5.1.2	用户登录
@@ -43,7 +43,7 @@
 //5.1.13	收藏列表
 +(void)FavoriteListRequestToken:(NSString*)token page:(int)page rows:(int)rows delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel;
 //5.1.15	播放记录列表
-+(void)PlayListRequestToken:(NSString*)token delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel;
++(void)PlayListRequestToken:(NSString*)token  page:(int)page rows:(int)rows delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel;
 //5.1.16	点卡充值
 +(void)PayAddRequestToken:(NSString*)token voucherCode:(NSString*)voucherCode password:(NSString*)password delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel;
 //5.1.17	充值记录
@@ -72,6 +72,10 @@
 
 //5.1.31	免注册登陆
 +(void)AnonymousLoginDelegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel;
+
+//5.1.32	剧集播放记录列表
++(void)PlayEpisodeListRequestToken:(NSString*)token page:(int)page rows:(int)rows delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel;
+
 //5.2.7	首页初始化-mobile(v2.4)
 +(void)IndexFeaturedHomeRequestToken:(NSString*)token delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel;
 //5.3.6	频道分类列表
@@ -96,7 +100,12 @@
 //zjj
 
 
-
+////5.10.5.3	微信应用获取access token接口
++(void)TenPay_AccessToken:(NSString*)token delegate:(id)delegate finishSel:(SEL)finishSel  failSel:(SEL)failSel;
+//5.10.5.2	微信支付交易状态查询接口
++(void)TenPay_TradeResult_Token:(NSString*)token outTradeNo:(NSString*)outTradeNo delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel;
+//5.10.5.1	微信支付预支付接口
++(void)TenPayPrepareWXPayToken:(NSString*)token price:(double)price vipGuid:(NSString*)vipGuid delegate:(id)delegate finishSel:(SEL)finishSel  failSel:(SEL)failSel;
 
 @end
 

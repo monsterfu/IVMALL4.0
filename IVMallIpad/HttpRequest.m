@@ -32,7 +32,26 @@
     [asiRequest startAsynchronous];
     
 }
-
++(void)request:(NSString*)url tag:(int)tag delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel{
+    
+    NSLog(@"url is %@",url);
+    NSURL *httpurl = [NSURL URLWithString:url];
+    
+    ASIHTTPRequest* asiRequest = [ASIHTTPRequest requestWithURL:httpurl];
+    
+    [asiRequest setTag:tag];
+    [asiRequest setRequestMethod:@"GET"];
+    [asiRequest setUseSessionPersistence:YES];
+    [asiRequest setUseCookiePersistence:YES];
+    [asiRequest setDefaultResponseEncoding:NSUTF8StringEncoding];
+    [asiRequest setDelegate:delegate];
+    [asiRequest setTimeOutSeconds:10];
+    [asiRequest setDidFinishSelector:finishSel];
+    [asiRequest setDidFailSelector:failSel];
+    
+    [asiRequest startAsynchronous];
+    
+}
 //zjj
 //5.0.1	应用控制
 +(void)AppConfigDelegate:(id)delegate finishSel:(SEL)finishSel  failSel:(SEL)failSel
@@ -50,22 +69,24 @@
 +(void)AppInstallDelegate:(id)delegate finishSel:(SEL)finishSel  failSel:(SEL)failSel
 {
     NSString* deviceDRMId = [[[IVMallPlayer sharedIVMallPlayer] IVMallPlayerGetLocalInfo]objectForKey:@"deviceDRMId"];
-    [self Request:APP_INSTALL_ACTION postdate:[NSString stringWithFormat:@"{\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId] tag:APP_INSTALL_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
+    NSString* deviceModel = [[[IVMallPlayer sharedIVMallPlayer] IVMallPlayerGetLocalInfo] objectForKey:@"model"];
+    [self Request:APP_INSTALL_ACTION postdate:[NSString stringWithFormat:@"{\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\",\"deviceModel\":\"%@\"}",CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId,deviceModel] tag:APP_INSTALL_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
 }
 //5.0.5	获取提示信息(v4.0)
-+(void)AppTipsRequestDelegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel
++(void)AppTipsRequestRequestToken:(NSString*)token key:(NSString*)key delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel
 {
     NSString* deviceDRMId = [[[IVMallPlayer sharedIVMallPlayer] IVMallPlayerGetLocalInfo]objectForKey:@"deviceDRMId"];
-    [self Request:APP_TIPS_ACTION postdate:[NSString stringWithFormat:@"{\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId] tag:APP_TIPS_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
+    [self Request:APP_TIPS_ACTION postdate:[NSString stringWithFormat:@"{\"token\":\"%@\",\"key\":\"anonymous.login.tips\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",token,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId] tag:APP_TIPS_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
 }
 //5.1.1	用户注册
 +(void)UserRegisterRequestMobile:(NSString*)mobile password:(NSString *)password checkcode:(NSString *)checkcode couponcode:(NSString *)couponcode delegate:(id)delegate finishSel:(SEL)finishSel  failSel:(SEL)failSel
 {
     NSString* deviceDRMId = [[[IVMallPlayer sharedIVMallPlayer] IVMallPlayerGetLocalInfo]objectForKey:@"deviceDRMId"];
+    NSString* deviceModel = [[[IVMallPlayer sharedIVMallPlayer] IVMallPlayerGetLocalInfo] objectForKey:@"model"];
     if (couponcode == nil) {
-        [self Request:USER_REGISTER_ACTION postdate:[NSString stringWithFormat:@"{\"mobile\":\"%@\",\"password\":\"%@\",\"validateCode\":\"%@\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",mobile,password,checkcode,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId] tag:USER_REGISTER_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
+        [self Request:USER_REGISTER_ACTION postdate:[NSString stringWithFormat:@"{\"mobile\":\"%@\",\"password\":\"%@\",\"validateCode\":\"%@\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\",\"deviceModel\":\"%@\"}",mobile,password,checkcode,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId,deviceModel] tag:USER_REGISTER_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
     }else{
-        [self Request:USER_REGISTER_ACTION postdate:[NSString stringWithFormat:@"{\"mobile\":\"%@\",\"password\":\"%@\",\"validateCode\":\"%@\",\"promoCode\":\"%@\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",mobile,password,checkcode,couponcode,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId] tag:USER_REGISTER_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
+        [self Request:USER_REGISTER_ACTION postdate:[NSString stringWithFormat:@"{\"mobile\":\"%@\",\"password\":\"%@\",\"validateCode\":\"%@\",\"promoCode\":\"%@\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\",\"deviceModel\":\"%@\"}",mobile,password,checkcode,couponcode,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId,deviceModel] tag:USER_REGISTER_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
     }
 }
 //5.1.2	用户登录
@@ -117,7 +138,7 @@
 {
     //contentGuid 可包含多个id，用逗号区分
     NSString* deviceDRMId = [[[IVMallPlayer sharedIVMallPlayer] IVMallPlayerGetLocalInfo]objectForKey:@"deviceDRMId"];
-    [self Request:FAVORITE_ADD_ACTION postdate:[NSString stringWithFormat:@"{\"token\":\"%@\",\"id\":\"%@\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",token,contentGuid,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId] tag:FAVORITE_ADD_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
+    [self Request:FAVORITE_DEL_ACTION postdate:[NSString stringWithFormat:@"{\"token\":\"%@\",\"id\":\"%@\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",token,contentGuid,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId] tag:FAVORITE_DEL_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
 }
 //5.1.12取消收藏（按内容ID）
 +(void)FavoriteDelByGuidRequestToken:(NSString*)token contentGuid:(NSString*)contentGuid delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel
@@ -134,10 +155,10 @@
     NSLog(@"%@",[NSString stringWithFormat:@"{\"token\":\"%@\",\"page\":\"%d\",\"rows\":\"%d\",\"client\":\"%@""\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",token,page+1,rows,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId]);
 }
 //5.1.15	播放记录列表
-+(void)PlayListRequestToken:(NSString*)token delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel
++(void)PlayListRequestToken:(NSString*)token page:(int)page rows:(int)rows delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel
 {
     NSString* deviceDRMId = [[[IVMallPlayer sharedIVMallPlayer] IVMallPlayerGetLocalInfo]objectForKey:@"deviceDRMId"];
-    [self Request:PLAY_LIST_ACTION postdate:[NSString stringWithFormat:@"{\"token\":\"%@\",\"page\":\"1\",\"rows\":\"20\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",token,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId] tag:PLAY_LIST_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
+    [self Request:PLAY_LIST_ACTION postdate:[NSString stringWithFormat:@"{\"token\":\"%@\",\"page\":\"%d\",\"rows\":\"%d\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",token,page,rows,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId] tag:PLAY_LIST_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
 }
 //5.1.16	点卡充值
 +(void)PayAddRequestToken:(NSString*)token voucherCode:(NSString*)voucherCode password:(NSString*)password delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel
@@ -237,14 +258,21 @@
 
     [self Request:ANONYMOUS_LOGIN_ACTION postdate:[NSString stringWithFormat:@"{\"osVersion\":\"%@\",\"deviceModel\":\"%@\",\"serial\":\"%@\",\"macAddr\":\"%@\",\"protocol\":\"hls0\",\"DRMType\":\"loco\",\"deviceGroup\":\"%@\",\"lang\":\"zh-cn\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",osVersion,deviceModel,serial,macAddr,deviceGroup,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId] tag:ANONYMOUS_LOGIN_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
 }
+
++(void)PlayEpisodeListRequestToken:(NSString*)token page:(int)page rows:(int)rows delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel;
+{
+    NSString* deviceDRMId = [[[IVMallPlayer sharedIVMallPlayer] IVMallPlayerGetLocalInfo]objectForKey:@"deviceDRMId"];
+    [self Request:PLAY_EPISODELIST_ACTION postdate:[NSString stringWithFormat:@"{\"token\":\"%@\",\"page\":\"1\",\"rows\":\"20\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",token,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId] tag:PLAY_EPISODELIST_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
+}
 //5.2.7	首页初始化-mobile(v2.4)
 +(void)IndexFeaturedHomeRequestToken:(NSString*)token delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel
 {
     NSString* deviceDRMId = [[[IVMallPlayer sharedIVMallPlayer] IVMallPlayerGetLocalInfo]objectForKey:@"deviceDRMId"];
+    NSString* deviceModel = [[[IVMallPlayer sharedIVMallPlayer] IVMallPlayerGetLocalInfo] objectForKey:@"model"];
     if (token) {
-        [self Request:INDEX_FEATUREDHOME_ACTION postdate:[NSString stringWithFormat:@"{\"token\":\"%@\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",token,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId] tag:INDEX_FEATUREDHOME_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
+        [self Request:INDEX_FEATUREDHOME_ACTION postdate:[NSString stringWithFormat:@"{\"token\":\"%@\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\",\"deviceModel\":\"%@\"}",token,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId,deviceModel] tag:INDEX_FEATUREDHOME_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
     }else{
-        [self Request:INDEX_FEATUREDHOME_ACTION postdate:[NSString stringWithFormat:@"{\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId] tag:INDEX_FEATUREDHOME_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
+        [self Request:INDEX_FEATUREDHOME_ACTION postdate:[NSString stringWithFormat:@"{\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\",\"deviceModel\":\"%@\"}",CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId,deviceModel] tag:INDEX_FEATUREDHOME_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
     
     }
 }
@@ -315,11 +343,10 @@
 {
     NSString* deviceDRMId = [[[IVMallPlayer sharedIVMallPlayer] IVMallPlayerGetLocalInfo]objectForKey:@"deviceDRMId"];
     if (vipGuid == nil) {
-        [self Request:ALIPAY_PREPARESECUREPAY_ACTION postdate:[NSString stringWithFormat:@"{\"token\":\"%@\",\"price\":\"%f\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",token,price,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId] tag:ALIPAY_PREPARESECUREPAY_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
+        [self Request:ALIPAY_PREPARESECUREPAY_ACTION postdate:[NSString stringWithFormat:@"{\"token\":\"%@\",\"price\":\"%.2f\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\"}",token,price,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId] tag:ALIPAY_PREPARESECUREPAY_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
     }else{
-        [self Request:ALIPAY_PREPARESECUREPAY_ACTION postdate:[NSString stringWithFormat:@"{\"token\":\"%@\",\"price\":\"%f\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\",\"vipGuid\":\"%@\"}",token,price,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId,vipGuid] tag:ALIPAY_PREPARESECUREPAY_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
+        [self Request:ALIPAY_PREPARESECUREPAY_ACTION postdate:[NSString stringWithFormat:@"{\"token\":\"%@\",\"price\":\"%.2f\",\"client\":\"%@\",\"appVersion\":\"%@\",\"publishId\":\"%@\",\"promoter\":\"%@\",\"deviceDRMId\":\"%@\",\"vipGuid\":\"%@\"}",token,price,CLIENT,IVMALL_VERSION,PUBLISHID,PROMOTER,deviceDRMId,vipGuid] tag:ALIPAY_PREPARESECUREPAY_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
         }
-    
 }
 //5.10.3	交易状态查询
 +(void)AlipayTradeResultRequestToken:(NSString*)token outTradeNo:(NSString*)outTradeNo totalFee:(double)totalFee delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel
@@ -342,6 +369,29 @@
 }
 //二维码
 //zjj
+
+
+////5.10.5.3	微信应用获取access token接口
++(void)TenPay_AccessToken:(NSString*)token delegate:(id)delegate finishSel:(SEL)finishSel  failSel:(SEL)failSel
+{
+    [self Request:TENPAY_ACCESSTOKEN_ACTION postdate:[NSString stringWithFormat:@"{\"client\":\"%@\",\"token\":\"%@\",\"appId\":\"%@\"}",CLIENT,token,WXAppId] tag:TENPAY_ACCESSTOKEN_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
+}
+
+
+//5.10.5.2	微信支付交易状态查询接口
++(void)TenPay_TradeResult_Token:(NSString*)token outTradeNo:(NSString*)outTradeNo delegate:(id)delegate finishSel:(SEL)finishSel failSel:(SEL)failSel
+{
+    [self Request:TENPAY_TRADERESULT_ACTION postdate:[NSString stringWithFormat:@"{\"token\":\"%@\",\"outTradeNo\":\"%@\",\"client\":\"%@\"}",token,outTradeNo,CLIENT] tag:TENPAY_TRADERESULT_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
+}
+//5.10.5.1	微信支付预支付接口
++(void)TenPayPrepareWXPayToken:(NSString*)token price:(double)price vipGuid:(NSString*)vipGuid delegate:(id)delegate finishSel:(SEL)finishSel  failSel:(SEL)failSel
+{
+    if (vipGuid == nil) {
+        [self Request:TENPAY_PREPAREWXPay_ACTION postdate:[NSString stringWithFormat:@"{\"client\":\"%@\",\"token\":\"%@\",\"price\":\"%.2f\",\"appId\":\"%@\"}",CLIENT,token,price,WXAppId] tag:TENPAY_PREPAREWXPay_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
+    }else{
+        [self Request:TENPAY_PREPAREWXPay_ACTION postdate:[NSString stringWithFormat:@"{\"client\":\"%@\",\"token\":\"%@\",\"price\":\"%.2f\",\"vipGuid\":\"%@\",\"appId\":\"%@\"}",CLIENT,token,price,vipGuid,WXAppId] tag:TENPAY_PREPAREWXPay_TYPE delegate:delegate finishSel:finishSel failSel:failSel];
+    }
+}
 @end
 
 

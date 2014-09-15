@@ -16,6 +16,8 @@
 #import "Commonality.h"
 #import "MainViewController.h"
 #import "SMPageControl.h"
+#import "PlayEpisodeListMode.h"
+#import "PlayEpisodeListViewController.h"
 @implementation IndexFeaturedHomeView
 {
     UIView* bannerView;
@@ -36,17 +38,43 @@
     NSString* playURL;
     
     UITapGestureRecognizer* playVideoRecord;
+    UIView* giftView;
+    
+    
+    UIView* noPlayRecord;
+    UIView* notLogin;
+    UIView* downloadFailedView;
+    UIView* playListView;
+    
+    PlayEpisodeListMode* myPlayEpisodeListMode;
 }
+
+#define BannerImageWidth    (iPad?687:232)
+#define BannerImageHeight   (iPad?287:97)
 
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(afterLogin:) name:NSNotificationCenterLoginInSuccess object:nil];
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(afterLogin:) name:NSNotificationCenterPlayVideo object:nil];
     }
     return self;
 }
 
+- (void)afterLogin:(NSNotification*)notification
+{
+    if ([AppDelegate App].myUserLoginMode.token) {
+        [HttpRequest PlayEpisodeListRequestToken:[AppDelegate App].myUserLoginMode.token page:1 rows:1 delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+    }
+
+}
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterLoginInSuccess object:nil];
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterPlayVideo object:nil];
+}
 /*
 // Only override drawRect: if you perform custom drawing.
 // An empty implementation adversely affects performance during animation.
@@ -77,13 +105,98 @@
         }
     }else if (request.tag == USER_PREFERENCE_GET_TYPE || request.tag == PRODUCT_PLAY_TYPE || request.tag == APP_TIPS_TYPE || request.tag == ANONYMOUS_LOGIN_TYPE)
     {
-         bannerView.userInteractionEnabled = YES;
+         [self.delegate getMianView].userInteractionEnabled = YES;
         if (self && self.delegate)
         {
             [self.delegate hideMBProgressHUD];
             [Commonality showErrorMsg:self type:0 msg:LINGKERROR];
         }
+    }else if (request.tag == PLAY_EPISODELIST_TYPE)
+    {
+        [self hidePlayRecordView];
+        [self makeDownloadFailedView];
+        [downloadFailedView setHidden:NO];
     }
+}
+
+-(void)makeDownloadFailedView
+{
+    if (downloadFailedView == nil) {
+        if (iPad) {
+            downloadFailedView = [[[NSBundle mainBundle] loadNibNamed:@"downloadFailedView" owner:self options:nil]objectAtIndex:0];
+            downloadFailedView.frame = CGRectMake(BannerImageWidth+30, 0, 193, 355);
+        }else{
+            downloadFailedView = [[[NSBundle mainBundle] loadNibNamed:@"downloadFailedViewForiPhone" owner:self options:nil]objectAtIndex:0];
+            downloadFailedView.frame = CGRectMake(BannerImageWidth+30, 0, 193, 355);
+        }
+
+        
+        UIButton* button1 = (UIButton*)[downloadFailedView viewWithTag:101];
+        [bannerView addSubview:downloadFailedView];
+        button1.layer.cornerRadius = (iPad?16:10);
+        [button1 addTarget:self action:@selector(refreshPlayRecord:) forControlEvents:UIControlEventTouchUpInside];
+    }
+}
+
+-(void)makeNoPlayRecorder
+{
+    if (noPlayRecord == nil) {
+        if (iPad) {
+            noPlayRecord = [[[NSBundle mainBundle] loadNibNamed:@"NoPlayRecorder" owner:self options:nil]objectAtIndex:0];
+            noPlayRecord.frame = CGRectMake(BannerImageWidth+30, 0, 193, 355);
+        }else{
+            noPlayRecord = [[[NSBundle mainBundle] loadNibNamed:@"NoPlayRecorderForiPhone" owner:self options:nil]objectAtIndex:0];
+            noPlayRecord.frame = CGRectMake(BannerImageWidth+30, 0, 193, 355);
+        }
+
+        
+        [bannerView addSubview:noPlayRecord];
+    }
+}
+
+-(void)makeplayRecorderView
+{
+    if (playListView == nil) {
+        if (iPad) {
+            playListView = [[[NSBundle mainBundle] loadNibNamed:@"playRecordView" owner:self options:nil]objectAtIndex:0];
+            playListView.frame = CGRectMake(BannerImageWidth+30, 0, 193, 355);
+        }else{
+            playListView = [[[NSBundle mainBundle] loadNibNamed:@"playRecordViewForiPhone" owner:self options:nil]objectAtIndex:0];
+            playListView.frame = CGRectMake(BannerImageWidth+10, 0, 85, 120);
+        }
+
+        
+        UIImageView* imageView = (UIImageView*)[playListView viewWithTag:101];
+        imageView.layer.cornerRadius = (iPad?20:10);
+        imageView.clipsToBounds = YES;
+        
+        [bannerView addSubview:playListView];
+//        UITapGestureRecognizer* tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(enterContentEpisodeItemListView:)];
+//        [imageView addGestureRecognizer:tapGesture];
+        
+        UIButton* button = (UIButton*)[playListView viewWithTag:105];
+        UIImage* tempImage = [Commonality createImageWithColor:[[UIColor alloc]initWithRed:0 green:0 blue:0 alpha:0.2]];
+        [button setBackgroundImage:tempImage forState:UIControlStateHighlighted];
+        button.layer.cornerRadius = (iPad?20:10);
+        button.clipsToBounds = YES;
+        [button addTarget:self action:@selector(enterContentEpisodeItemListView:) forControlEvents:UIControlEventTouchUpInside];
+        
+        UIButton* button1 = (UIButton*)[playListView viewWithTag:103];
+        [button1 addTarget:self action:@selector(enterPlayListView:) forControlEvents:UIControlEventTouchUpInside];
+    }
+}
+- (void)enterPlayListView:(UIButton*)sender
+{
+    [[AppDelegate App]click];
+    PlayEpisodeListViewController* myPlayEpisodeListViewController = [[PlayEpisodeListViewController alloc]init];
+    if (self && self.delegate) {
+        [[self.delegate getNavigation] pushViewController:myPlayEpisodeListViewController animated:NO];
+    }
+
+}
+- (void)refreshPlayRecord:(UIButton*)sender
+{
+    [HttpRequest PlayEpisodeListRequestToken:[AppDelegate App].myUserLoginMode.token page:1 rows:1 delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
 }
 
 -(void)GetResult:(ASIHTTPRequest *)request
@@ -102,11 +215,17 @@
             }
         }else if (request.tag == USER_PREFERENCE_GET_TYPE || request.tag == PRODUCT_PLAY_TYPE || request.tag == APP_TIPS_TYPE || request.tag == ANONYMOUS_LOGIN_TYPE)
         {
-             bannerView.userInteractionEnabled = YES;
+             [self.delegate getMianView].userInteractionEnabled = YES;
             if (self && self.delegate)
             {
                 [self.delegate hideMBProgressHUD];
             }
+        }
+        else if (request.tag == PLAY_EPISODELIST_TYPE)
+        {
+            [self hidePlayRecordView];
+            [self makeDownloadFailedView];
+            [downloadFailedView setHidden:NO];
         }
     }else
     {
@@ -119,26 +238,6 @@
                     [self.delegate hideMBProgressHUD];
                 }
             }
-        }else if (request.tag == USER_PREFERENCE_GET_TYPE)
-        {
-            if (self && self.delegate)
-            {
-                [self.delegate hideMBProgressHUD];
-            }
-             bannerView.userInteractionEnabled = YES;
-            UserPreferenceModel* myUserPre = [[UserPreferenceModel alloc]initWithDictionary:dictionary];
-            if (myUserPre.errorCode == 0) {
-                if([myUserPre.preferenceKey hasPrefix:@"play.positon"]){
-                    int startTime = [myUserPre.preferenceValue intValue];
-                    [IVMallPlayer sharedIVMallPlayer].delegate = self;
-                    [[AppDelegate App] play];
-                    [[IVMallPlayer sharedIVMallPlayer]IVMallPlayerStart:playURL withVideoName:videoName fromViewController:[self.delegate getNavigation] startTime:startTime];
-                    return;
-                    
-                }
-            }
-
-
         }else if (request.tag == APP_TIPS_TYPE){
             if (self && self.delegate)
             {
@@ -146,34 +245,98 @@
             }
             AppTipsModel* temp = [[AppTipsModel alloc]initWithDictionary:dictionary];
             if (temp.errorCode == 0) {
-                NSString* copyright=[[NSUserDefaults standardUserDefaults] objectForKey:@"copyright_Ivmall"];
-                if (copyright && [copyright isEqualToString:@"true"] ) {
-                    [Commonality showTipsMsgWithView:self duration:3 msg:temp.anonymousTips image:[UIImage imageNamed:@"libao_bg.png"]];
-                    [self performSelector:@selector(anonymousPlay) withObject:nil afterDelay:3.0];
-                }else{
-                    [self anonymousPlay];
-                }
+                AppTipsModel* temp = [[AppTipsModel alloc]initWithDictionary:dictionary];
+                if (temp.errorCode == 0) {
+                    NSDate* vipExpiryTime = [Commonality dateFromString:temp.vipExpiryTime];
+                    NSDate* currentTime = [Commonality dateFromString:temp.currentTime];
+                    if ([vipExpiryTime earlierDate:currentTime] == currentTime) {
+                        NSString* copyright=[[NSUserDefaults standardUserDefaults] objectForKey:@"copyright_Ivmall"];
+                        if (copyright && [copyright isEqualToString:@"true"] ) {
+                            if (giftView == nil) {
+                                if (iPad) {
+                                    giftView = [[[NSBundle mainBundle] loadNibNamed:@"GiftViewForiPad" owner:self options:nil]objectAtIndex:0];
+                                }else{
+                                    
+                                    giftView = [[[NSBundle mainBundle] loadNibNamed:@"GiftViewForiPhone" owner:self options:nil]objectAtIndex:0];
+                                }
+                                [self addSubview:giftView];
+                                giftView.frame = CGRectMake(0, -110, 1024, 768);
+                                
+                                UIButton* button1 = (UIButton*)[giftView viewWithTag:102];
+                                button1.exclusiveTouch = YES;
+                                [button1 addTarget:self action:@selector(getThePackage:) forControlEvents:UIControlEventTouchUpInside];
+                                UIButton* button2 = (UIButton*)[giftView viewWithTag:103];
+                                button2.exclusiveTouch = YES;
+                                [button2 addTarget:self action:@selector(anonymousPlay) forControlEvents:UIControlEventTouchUpInside];
+                            }
+                            
+                            UILabel* label1 = (UILabel*)[giftView viewWithTag:100];
+                            label1.text = [NSString stringWithFormat:@"免注册可观看到 %@",[Commonality Date2Str3:vipExpiryTime]];
+                            UILabel* label2 = (UILabel*)[giftView viewWithTag:101];
+                            label2.text = temp.anonymousTips;
+                            [giftView setHidden:NO];
+                            [self.delegate getMianView].userInteractionEnabled = YES;
+                            
+                        }else{
+                            [self anonymousPlay];
+                        }
+                    }else{
+                        [self enterLoginView:IndexPlayVideo];
+                    }
 
-            }else{
-                [Commonality showErrorMsg:self type:0 msg:temp.errorMessage];
-                 bannerView.userInteractionEnabled = YES;
+
+                }else{
+                    [Commonality showErrorMsg:self type:0 msg:temp.errorMessage];
+                     [self.delegate getMianView].userInteractionEnabled = YES;
+                }
             }
         }
         else if(request.tag == ANONYMOUS_LOGIN_TYPE){
             [AppDelegate App].myAnonymousLoginMode = [[AnonymousLoginMode alloc]initWithDictionary:dictionary];
             if ([AppDelegate App].myAnonymousLoginMode.errorCode == 0) {
-                [HttpRequest AppTipsRequestDelegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+                [HttpRequest AppTipsRequestRequestToken:[AppDelegate App].myAnonymousLoginMode.token key:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+                [HttpRequest DevicesBindRequestToken:[AppDelegate App].myAnonymousLoginMode.token delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
             }else{
                 if (self && self.delegate)
                 {
                     [self.delegate hideMBProgressHUD];
                 }
-//                [Commonality showErrorMsg:self type:0 msg:[AppDelegate App].myAnonymousLoginMode.errorMessage];
-                [self enterLoginView:PlayVideo];
-                 bannerView.userInteractionEnabled = YES;
+                [self enterLoginView:IndexPlayVideo];
+                 [self.delegate getMianView].userInteractionEnabled = YES;
+            }
+        }
+        else if (request.tag == PLAY_EPISODELIST_TYPE)
+        {
+            myPlayEpisodeListMode = [[PlayEpisodeListMode alloc]initWithDictionary:dictionary];
+            if (myPlayEpisodeListMode.errorCode == 0) {
+                if (myPlayEpisodeListMode.list.count == 0) {
+                    [self hidePlayRecordView];
+                    [self makeNoPlayRecorder];
+                    [noPlayRecord setHidden:NO];
+                }else {
+                    [self hidePlayRecordView];
+                    [self makeplayRecorderView];
+                    EpisodeMode* tempEpisodeMode = [myPlayEpisodeListMode.list objectAtIndex:0];
+                    
+                    UIImageView* imageView = (UIImageView*)[playListView viewWithTag:101];
+                    [imageView setImageWithURL:[NSURL URLWithString:tempEpisodeMode.contentImg] placeholderImage:[UIImage imageNamed:@"icon_75.png"]];
+                    
+                    UILabel* label = (UILabel*)[playListView viewWithTag:102];
+                    label.text = tempEpisodeMode.contentTitle;
+                    
+                    UILabel* label2 = (UILabel*)[playListView viewWithTag:104];
+                    label2.text = [NSString stringWithFormat:@"观看至第%d集",tempEpisodeMode.latestPlayEpisode];
+                    
+                    [playListView setHidden:NO];
+                }
             }
         }
         else if(request.tag == PRODUCT_PLAY_TYPE){
+            [self.delegate getMianView].userInteractionEnabled = YES;
+            if (self && self.delegate)
+            {
+                [self.delegate hideMBProgressHUD];
+            }
             ProductPlayModel* myProductPlayMode = [[ProductPlayModel alloc]initWithDictionary:dictionary];
             if (myProductPlayMode.errorCode == 0) {
                 playURL = nil;
@@ -183,7 +346,7 @@
                     {
                         [self.delegate hideMBProgressHUD];
                     }
-                     bannerView.userInteractionEnabled = YES;
+                     [self.delegate getMianView].userInteractionEnabled = YES;
                     return;
                 }else{
                     if ([Commonality isEmpty:myProductPlayMode.URI]) {
@@ -191,21 +354,16 @@
                     }else {
                         playURL = myProductPlayMode.URI;
                     }
-                    NSString* preferenceKey1 = [NSString stringWithFormat:@"play.positon.%@",contentGuid];
-                    if ([AppDelegate App].myUserLoginMode.token) {
 
-                        [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey:preferenceKey1 preferenceValue:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-                    }else{
-                        [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myAnonymousLoginMode.token preferenceKey:preferenceKey1 preferenceValue:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-                    }
 
+                    [IVMallPlayer sharedIVMallPlayer].delegate = self;
+                    [[AppDelegate App] play];
+                    [[IVMallPlayer sharedIVMallPlayer]IVMallPlayerStart:playURL withVideoName:videoName withConnectionPlayProType:VideoNotEpisode fromViewController:[self.delegate getNavigation] startTime:0];
+                    [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterPlayVideo object:nil];
+                    return;
                 }
             }else{
-                 bannerView.userInteractionEnabled = YES;
-                if (self && self.delegate)
-                {
-                    [self.delegate hideMBProgressHUD];
-                }
+
                 if ([AppDelegate App].myUserLoginMode.token) {
                     if (myProductPlayMode.errorCode == 204 || myProductPlayMode.errorCode == 224) {
                         NSString* copyright=[[NSUserDefaults standardUserDefaults] objectForKey:@"copyright_Ivmall"];
@@ -219,21 +377,38 @@
                         [Commonality showErrorMsg:self type:0 msg:myProductPlayMode.errorMessage];
                     }
                 }else{
-                    NSString* copyright=[[NSUserDefaults standardUserDefaults] objectForKey:@"copyright_Ivmall"];
-                    if (copyright && [copyright isEqualToString:@"true"] ) {
-                        [Commonality showTipsMsgWithView:self duration:3.0 msg:@"你的免注册观看已到期" image:[UIImage  imageNamed: @"libao_bg.png"]];
+                    if (myProductPlayMode.errorCode == 204 || myProductPlayMode.errorCode == 224) {
+//                        NSString* copyright=[[NSUserDefaults standardUserDefaults] objectForKey:@"copyright_Ivmall"];
+//                        if (copyright && [copyright isEqualToString:@"true"] ) {
+//                            [Commonality showTipsMsgWithView:self duration:3.0 msg:@"您的免注册观看已到期" image:[UIImage  imageNamed: @"libao_bg.png"]];
+//                            
+//                        }
+                        
+                    }else{
+                        [Commonality showErrorMsg:self type:0 msg:myProductPlayMode.errorMessage];
                     }
-                    [self performSelector:@selector(enterLoginView:) withObject:PlayVideo afterDelay:3.0];
+//                    [self performSelector:@selector(enterLoginView:) withObject:PlayVideo afterDelay:3.0];
+                    [self enterLoginView:IndexPlayVideo];
 
+                    }
                 }
             }
-        }
+        
     }
 }
 
+- (void)getThePackage:(UIButton*)button
+{
+    [giftView setHidden:YES];
+    [[AppDelegate App]click];
+    UserRegisterViewController* myUserRegisterViewController = [[UserRegisterViewController alloc]init];
+    myUserRegisterViewController.isFromLoginView = NO;
+    [[self.delegate getNavigation] pushViewController:myUserRegisterViewController animated:NO];
+}
 - (void)enterLoginView:(ActionState)state
 {
     if (self && self.delegate) {
+        [[AppDelegate App]click];
         UserLoginViewController* myUserLoginViewController = [[UserLoginViewController alloc]init];
         myUserLoginViewController.myActionState = state;
         [[self.delegate getNavigation] pushViewController:myUserLoginViewController animated:NO];
@@ -246,7 +421,10 @@
             //进入购买页面
             if (self && self.delegate) {
                 [[AppDelegate App]click];
-                [self.delegate buyVip];
+                PurchaseCompletionHandler myCallBack = ^{
+                    [self playBefoerLoginVideo];
+                };
+                [self.delegate buyVip:myCallBack];
             }
         }
     }
@@ -256,18 +434,21 @@
 {
     if (bannerView) {
         [bannerView removeFromSuperview];
+        noPlayRecord = nil;
+        notLogin = nil;
+        downloadFailedView = nil;
+        playListView = nil;
         bannerView = nil;
     }
     //画banner
     bannerView = [[UIView alloc]init];
-    bannerView.backgroundColor = [Commonality colorFromHexRGB:@"eeeeee"];
+    bannerView.backgroundColor = [Commonality colorFromHexRGB:@"5cbe59"];
     if (iPad) {
-        bannerView.frame = CGRectMake(55, 0, 914, 321);
+        bannerView.frame = CGRectMake(57, 0, 910, 355);
         bannerView.layer.cornerRadius = 20.0f;
         bannerView.layer.borderWidth = 3;
     }else{
-//        bannerView.frame = CGRectMake((VIEWHEIGHT-457)/2, 0, 457, 146);
-        bannerView.frame = CGRectMake((VIEWHEIGHT-376)/2, 0, 376, 120);
+        bannerView.frame = CGRectMake((VIEWHEIGHT-328)/2, 0, 328, 120);
         bannerView.layer.cornerRadius = 10.0f;
         bannerView.layer.borderWidth = 1.5;
     
@@ -276,11 +457,34 @@
     bannerView.layer.borderColor = [[Commonality colorFromHexRGB:@"42843d"]CGColor];
     [self addSubview:bannerView];
     
+    
+    UIView* bannerScrollerBackgroundView = [[UIView alloc]init];
+    bannerScrollerBackgroundView.backgroundColor = [Commonality colorFromHexRGB:@"f2ffe5"];
+    if (iPad) {
+        bannerScrollerBackgroundView.frame = CGRectMake(0, 0, 717, 355);
+        bannerScrollerBackgroundView.layer.cornerRadius = 20.0f;
+    }else{
+        bannerScrollerBackgroundView.frame = CGRectMake(0, 0, 242, 120);
+        bannerScrollerBackgroundView.layer.cornerRadius = 10.0f;
+    }
+    
+    [bannerView addSubview:bannerScrollerBackgroundView];
+    
+    UIImageView* bannerRightImageView = [[UIImageView alloc]init];
+    if (iPad) {
+        bannerRightImageView.frame = CGRectMake(702, 0, 52,355);
+        bannerRightImageView.image = [UIImage imageNamed:@"banner_right.png"];
+    }else{
+        bannerRightImageView.frame = CGRectMake(237, 0, 17,120);
+        bannerRightImageView.image = [UIImage imageNamed:@"banner_right.png"];
+    }
+    [bannerView addSubview:bannerRightImageView];
+    
     bannerScrollView = [[UIScrollView alloc]init];
     if (iPad) {
-        bannerScrollView.frame  = CGRectMake(10, 10, 894, 272);
+        bannerScrollView.frame  = CGRectMake(15, 15, BannerImageWidth, BannerImageHeight);
     }else{
-        bannerScrollView.frame  = CGRectMake(5, 3, 366, 94);
+        bannerScrollView.frame  = CGRectMake(5, 5, BannerImageWidth, BannerImageHeight);
     }
     
     bannerScrollView.delegate = self;
@@ -299,18 +503,16 @@
             adModel* temp = [bannerArray objectAtIndex:i];
             NSString* imgURL = temp.adImg ;
             UIImageView *imgView=[[UIImageView alloc] init];
-//            [imgView setImageWithURL:[NSURL URLWithString:imgURL]];
             [imgView setImageWithURL:[NSURL URLWithString:imgURL] placeholderImage:[UIImage imageNamed:@"banner.png"]];
             imgView.contentMode = UIViewContentModeScaleAspectFill;
             imgView.clipsToBounds = YES;
             if (iPad) {
                 imgView.layer.cornerRadius = 10.0f;
-                [imgView setFrame:CGRectMake(i*894, 0, 894, 272)];
             }else{
                 imgView.layer.cornerRadius = 5.0f;
-                [imgView setFrame:CGRectMake(i*366, 0, 366, 94)];
+                
             }
-
+            [imgView setFrame:CGRectMake(i*BannerImageWidth, 0, BannerImageWidth, BannerImageHeight)];
             imgView.tag = 100+i;
             imgView.exclusiveTouch=YES;
             UITapGestureRecognizer *Tap =[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(imagePressed:)];
@@ -318,17 +520,14 @@
             [Tap setNumberOfTouchesRequired:1];
             imgView.userInteractionEnabled=YES;
             [imgView addGestureRecognizer:Tap];
+       
             [bannerScrollView addSubview:imgView];
         }
 
-        if (iPad) {
-            [bannerScrollView setContentSize:CGSizeMake(pageCount*894, 272)];
-            [bannerScrollView setContentOffset:CGPointMake(894, 0)];
-        }else{
-            [bannerScrollView setContentSize:CGSizeMake(pageCount*366, 94)];
-            [bannerScrollView setContentOffset:CGPointMake(366, 0)];
-        }
-        
+        [bannerScrollView setContentSize:CGSizeMake(pageCount*BannerImageWidth, BannerImageHeight)];
+        [bannerScrollView setContentOffset:CGPointMake(BannerImageWidth, 0)];
+
+     
         float pageControlWidth;
         float pagecontrolHeight;
         if (iPad) {
@@ -339,11 +538,11 @@
             pagecontrolHeight = 20;
         }
         if (iPad) {
-            pageControl=[[UIPageControl alloc]initWithFrame:CGRectMake((896-pageControlWidth)-20,284, pageControlWidth, pagecontrolHeight)];
+            pageControl=[[UIPageControl alloc]initWithFrame:CGRectMake((BannerImageWidth-pageControlWidth)-20,312, pageControlWidth, pagecontrolHeight)];
         }else{
-            pageControl=[[UIPageControl alloc]initWithFrame:CGRectMake((366-pageControlWidth)-20,97, pageControlWidth, pagecontrolHeight)];
+            pageControl=[[UIPageControl alloc]initWithFrame:CGRectMake((BannerImageWidth-pageControlWidth)-20,100, pageControlWidth, pagecontrolHeight)];
         }
-
+        
         [pageControl setCurrentPage:0];
         pageControl.numberOfPages=(pageCount-2);
         pageControl.pageIndicatorTintColor=[Commonality colorFromHexRGB:@"96aa79"];
@@ -351,10 +550,10 @@
         [bannerView addSubview:pageControl];
         
         if (iPad) {
-            noteTitle=[[UILabel alloc] initWithFrame:CGRectMake(10, 284, 896-pageControlWidth-10, 33)];
-            [noteTitle setFont:[UIFont boldSystemFontOfSize:17]];
+            noteTitle=[[UILabel alloc] initWithFrame:CGRectMake(15, 312, BannerImageWidth, 33)];
+            [noteTitle setFont:[UIFont boldSystemFontOfSize:19]];
         }else{
-            noteTitle=[[UILabel alloc] initWithFrame:CGRectMake(10, 97, 366-pageControlWidth-10, 20)];
+            noteTitle=[[UILabel alloc] initWithFrame:CGRectMake(10, 100, BannerImageWidth, 20)];
             [noteTitle setFont:[UIFont boldSystemFontOfSize:13]];
         }
         
@@ -375,7 +574,36 @@
             turnPageTimer = [NSTimer scheduledTimerWithTimeInterval:4 target:self selector:@selector(runTimePage) userInfo:nil repeats:YES];
         }
     }
-    
+    if ([AppDelegate App].myUserLoginMode.token) {
+        [HttpRequest PlayEpisodeListRequestToken:[AppDelegate App].myUserLoginMode.token page:1 rows:1 delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+    }else{
+        [self hidePlayRecordView];
+        NSString* copyright=[[NSUserDefaults standardUserDefaults] objectForKey:@"copyright_Ivmall"];
+        if (copyright && [copyright isEqualToString:@"true"] ) {
+            if (notLogin == nil) {
+                if (iPad) {
+                    notLogin = [[[NSBundle mainBundle] loadNibNamed:@"NotLogin" owner:self options:nil]objectAtIndex:0];
+                    notLogin.frame = CGRectMake(BannerImageWidth+30, 0, 193, 355);
+                }else{
+                    notLogin = [[[NSBundle mainBundle] loadNibNamed:@"NotLoginForiPhone" owner:self options:nil]objectAtIndex:0];
+                    notLogin.frame = CGRectMake(BannerImageWidth+10, 0, 85, 120);
+                }
+                [bannerView addSubview:notLogin];
+                UIButton* button1 = (UIButton*)[notLogin viewWithTag:101];
+                button1.exclusiveTouch = YES;
+                [button1 addTarget:self action:@selector(enterRegisterView:) forControlEvents:UIControlEventTouchUpInside];
+                UIButton* button2 = (UIButton*)[notLogin viewWithTag:102];
+                button2.exclusiveTouch = YES;
+                [button2 addTarget:self action:@selector(oTherEnterLoginView:) forControlEvents:UIControlEventTouchUpInside];
+            }
+            
+            [notLogin setHidden:NO];
+        }else{
+            [self hidePlayRecordView];
+            [self makeNoPlayRecorder];
+            [noPlayRecord setHidden:NO];
+        }
+    }
     
     if (recommanderScrollView) {
         [recommanderScrollView removeFromSuperview];
@@ -384,13 +612,12 @@
     //画recommand
     recommanderScrollView = [[UIScrollView alloc]init];
     if (iPad) {
-        recommanderScrollView.frame = CGRectMake(55, 338, 914, 242);
+        recommanderScrollView.frame = CGRectMake(55, 383, 914, 242);
     }else{
         recommanderScrollView.frame = CGRectMake((VIEWHEIGHT-457)/2, 130, 457, 120);
     }
     
     recommanderScrollView.delegate = self;
-//    recommanderScrollView.pagingEnabled = YES;
     recommanderScrollView.showsHorizontalScrollIndicator = NO;
     recommanderScrollView.showsVerticalScrollIndicator = NO;
     recommanderScrollView.scrollsToTop = NO;
@@ -463,11 +690,43 @@
 
     if ([self.delegate pageState] == PAGE_INDEX) {
         [self.delegate hideBottomView];
+        [self.delegate hideNotWifiView];
         [self setHidden:NO];
     }
 
 }
 
+- (void)enterContentEpisodeItemListView:(UIButton*)sender/*(UITapGestureRecognizer*)sender*/
+{
+    
+    [[AppDelegate App]click];
+    EpisodeMode* tempContentMode = [myPlayEpisodeListMode.list objectAtIndex:0];
+    ContentEpisodeItemListViewController* myContentEpisodeItemListViewController = [[ContentEpisodeItemListViewController alloc]init];
+    myContentEpisodeItemListViewController.episodeGuid = tempContentMode.contentGuid;
+    myContentEpisodeItemListViewController.langs = tempContentMode.langs;
+    myContentEpisodeItemListViewController.latestPlayLang = tempContentMode.latestPlayLang;
+    if (self && self.delegate) {
+        [[self.delegate getNavigation] pushViewController:myContentEpisodeItemListViewController animated:NO];
+    }
+}
+
+- (void)enterRegisterView:(UIButton*)sender
+{
+    UserRegisterViewController* myUserRegisterViewController = [[UserRegisterViewController alloc]init];
+    myUserRegisterViewController.isFromLoginView = NO;
+    [[self.delegate getNavigation] pushViewController:myUserRegisterViewController animated:NO];
+}
+- (void)oTherEnterLoginView:(UIButton*)sender
+{
+    [self enterLoginView:UnKnownAction];
+}
+- (void)hidePlayRecordView
+{
+    [noPlayRecord setHidden:YES];
+    [notLogin setHidden:YES];
+    [downloadFailedView setHidden:YES];
+    [playListView setHidden:YES];
+}
 - (void)pressedView:(UITapGestureRecognizer*)sender
 {
     if ([sender isKindOfClass:[UITapGestureRecognizer class]]) {
@@ -477,7 +736,8 @@
             contentModel* tempContentMode = [recommandArray objectAtIndex:index];
             ContentEpisodeItemListViewController* myContentEpisodeItemListViewController = [[ContentEpisodeItemListViewController alloc]init];
             myContentEpisodeItemListViewController.episodeGuid = tempContentMode.contentGuid;
-            myContentEpisodeItemListViewController.langs = nil;
+            myContentEpisodeItemListViewController.langs = tempContentMode.langs;
+            myContentEpisodeItemListViewController.latestPlayLang = nil;
             if (self && self.delegate) {
                 [[self.delegate getNavigation] pushViewController:myContentEpisodeItemListViewController animated:NO];
             }
@@ -496,7 +756,8 @@
                 contentModel* tempContentMode = [recommandArray objectAtIndex:index];
                 ContentEpisodeItemListViewController* myContentEpisodeItemListViewController = [[ContentEpisodeItemListViewController alloc]init];
                 myContentEpisodeItemListViewController.episodeGuid = tempContentMode.contentGuid;
-                myContentEpisodeItemListViewController.langs = nil;
+                myContentEpisodeItemListViewController.langs = tempContentMode.langs;
+                myContentEpisodeItemListViewController.latestPlayLang = nil;
                 if (self && self.delegate) {
                     [[self.delegate getNavigation] pushViewController:myContentEpisodeItemListViewController animated:NO];
                 }
@@ -505,7 +766,6 @@
         }
 
     }
-    
 }
 
 - (void)setFcous:(UIView*)view
@@ -550,22 +810,10 @@
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
     if (scrollView == bannerScrollView) {
         if (currentPageIndex==0) {
-            if (iPad) {
-                [bannerScrollView setContentOffset:CGPointMake(([bannerArray count]-2)*894 , 0)];
-            }else{
-                [bannerScrollView setContentOffset:CGPointMake(([bannerArray count]-2)*290 , 0)];
-            }
-            
-//            pageControl.currentPage = pageControl.numberOfPages -1;
+            [bannerScrollView setContentOffset:CGPointMake(([bannerArray count]-2)*BannerImageWidth , 0)];
         }
         if (currentPageIndex==([bannerArray count]-1)) {
-//            pageControl.currentPage = 0;
-            if (iPad) {
-                [bannerScrollView setContentOffset:CGPointMake(894, 0)];
-            }else{
-                [bannerScrollView setContentOffset:CGPointMake(366, 0)];
-            }
-            
+            [bannerScrollView setContentOffset:CGPointMake(BannerImageWidth, 0)];
         }
     }
 }
@@ -594,24 +842,12 @@
 - (void)turnPage{
     int page = pageControl.currentPage;
     if (page == 0) {
-//        pageControl.currentPage = 0;
-        if (iPad) {
-            [bannerScrollView scrollRectToVisible:CGRectMake(894*(page+1),0,894,272) animated:NO];
-        }else{
-            [bannerScrollView scrollRectToVisible:CGRectMake(366*(page+1),0,366,94) animated:NO];
-        }
-        
+        [bannerScrollView scrollRectToVisible:CGRectMake(BannerImageWidth*(page+1),0,BannerImageWidth,BannerImageHeight) animated:NO];
     }
     else
     {
-        if (iPad) {
-            [bannerScrollView scrollRectToVisible:CGRectMake(894*(page+1),0,894,272) animated:YES];
-        }else{
-            [bannerScrollView scrollRectToVisible:CGRectMake(366*(page+1),0,366,94) animated:YES];
-        }
-        
+        [bannerScrollView scrollRectToVisible:CGRectMake(BannerImageWidth*(page+1),0,BannerImageWidth,BannerImageHeight) animated:YES];
     }
-    
 }
 
 - (void)runTimePage{
@@ -628,7 +864,7 @@
         [self.delegate showMBProgressHUD];
     }
     if ([AppDelegate App].myAnonymousLoginMode.token) {
-        [HttpRequest AppTipsRequestDelegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+        [HttpRequest AppTipsRequestRequestToken:[AppDelegate App].myAnonymousLoginMode.token key:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
     }else{
         [HttpRequest AnonymousLoginDelegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
     }
@@ -636,19 +872,20 @@
 
 - (void)anonymousPlay
 {
+    [giftView setHidden:YES];
     if (self && self.delegate) {
         [self.delegate showMBProgressHUD];
     }
     [HttpRequest ProductPlayRequestToken:[AppDelegate App].myAnonymousLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
 }
 
-- (void)imagePressed:(UITapGestureRecognizer *)sender{
+- (void)imagePressedWithOutSound:(UITapGestureRecognizer *)sender
+{
+    [self.delegate getMianView].userInteractionEnabled = NO;
     
-    bannerView.userInteractionEnabled = NO;
-    [[AppDelegate App]click];
     int indexAd = sender.view.tag - 100;
     if (indexAd >= bannerArray.count  || indexAd<0) {
-        bannerView.userInteractionEnabled = YES;
+        [self.delegate getMianView].userInteractionEnabled = YES;
         return;
     }
     adModel* im = [bannerArray objectAtIndex:indexAd];
@@ -663,12 +900,8 @@
             videoName = im.adTitle;
             [HttpRequest ProductPlayRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
             return;
-
+            
         }else{
-//            if (self && self.delegate) {
-//                UserLoginViewController* myUserLoginViewController = [[UserLoginViewController alloc]init];
-//                [[self.delegate getNavigation] pushViewController:myUserLoginViewController animated:NO];
-//            }
             playVideoRecord = sender;
             contentGuid = im.adGuid;
             videoName = im.adTitle;
@@ -695,25 +928,27 @@
             }
         }
         
-        bannerView.userInteractionEnabled = YES;
+        [self.delegate getMianView].userInteractionEnabled = YES;
     }
     
-     bannerView.userInteractionEnabled = YES;
+    [self.delegate getMianView].userInteractionEnabled = YES;
+
+}
+
+- (void)imagePressed:(UITapGestureRecognizer *)sender{
+    
+    [[AppDelegate App]click];
+    [self imagePressedWithOutSound:sender];
+    
 }
 
 -(void)PlayerCallBack:(PlayerCallBackEventType)callBackEventType withParameter: (NSMutableDictionary *)callBackInfo
 {
-    [IVMallPlayer sharedIVMallPlayer].delegate=nil;
-
     if (callBackEventType == PlayerWillPlaybackEnded) {
         
         
     }else if(callBackEventType == PlayerUserExited){
-        NSLog(@"callBackInfo=%@",callBackInfo);
-        int playTime = [[callBackInfo objectForKey:@"time"]intValue];
-        NSString* preferenceKey1 = [NSString stringWithFormat:@"play.positon.%@",contentGuid];
-        NSString* preferenceValue1 = [NSString stringWithFormat:@"%d",playTime];
-        [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey:preferenceKey1 preferenceValue:preferenceValue1 delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+
     }else if(callBackEventType == PlayerWillReturnFromDMRPlay){
         [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterExitFromDMC object:@"YES"];
         return;
@@ -723,6 +958,6 @@
 
 - (void)playBefoerLoginVideo
 {
-    [self imagePressed:playVideoRecord];
+    [self imagePressedWithOutSound:playVideoRecord];
 }
 @end

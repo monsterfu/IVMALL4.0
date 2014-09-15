@@ -15,6 +15,9 @@
 #import "DataVerifier.h"
 //支付宝
 
+//微信
+#import "WeixinPay/WXApi.h"
+
 //zjj
 #import "UserDetailMode.h"
 #import "UserLoginModel.h"
@@ -23,7 +26,7 @@
 //zjj
 @class PersonnalCenter;
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate,ASIHTTPRequestDelegate,UIAlertViewDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate,ASIHTTPRequestDelegate,UIAlertViewDelegate,WXApiDelegate>
 {
     
 }
@@ -42,6 +45,9 @@
 @property(nonatomic,strong)NSString* outTradeNo;
 @property(nonatomic,assign)double totalFee;
 //支付宝
+
+//微信支付
+@property(nonatomic,strong)UIAlertView* wxResultAlertView;
 
 @property(nonatomic,strong)AVAudioPlayer* audioPlayer;
 

@@ -25,22 +25,28 @@
         
     
     
-    UIView* errorView = [[UIView alloc]initWithFrame:CGRectMake(3, -49, 268, 49)];
+    UIView* errorView = [[UIView alloc]initWithFrame:CGRectMake(3, iPad?-49:-49*0.6, iPad?268:268*0.6, iPad?49:49*0.6)];
     [errorView setTag:100];
     errorView.backgroundColor = [UIColor clearColor];
     [self addSubview:errorView];
     
-    UIImageView* imageView1 = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, 268, 49)];
+    UIImageView* imageView1 = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, iPad?268:268*0.6, iPad?49:49*0.6)];
     imageView1.image = [UIImage imageNamed:@"Bubble.png"];
     imageView1.alpha = 0.96;
     [errorView addSubview:imageView1];
     
-    UILabel* errorLabel = [[UILabel alloc]initWithFrame:CGRectMake(30, 0, 238, 39)];
+    UILabel* errorLabel = [[UILabel alloc]initWithFrame:CGRectMake(iPad?30:18, 0, iPad?238:238*0.6, iPad?39:39*0.6)];
     [errorLabel setTag:101];
     errorLabel.backgroundColor = [UIColor clearColor];
     errorLabel.textAlignment = NSTextAlignmentLeft;
     errorLabel.textColor = [UIColor blackColor];
-    errorLabel.font = [UIFont boldSystemFontOfSize:15];
+    if (iPad) {
+        errorLabel.font = [UIFont boldSystemFontOfSize:15];
+    }else{
+        errorLabel.font = [UIFont boldSystemFontOfSize:10];
+    }
+    
+    
     [errorView addSubview:errorLabel];
     
     [errorView setHidden:YES];

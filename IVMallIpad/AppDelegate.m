@@ -36,7 +36,7 @@
     [self commitDownloadTimes];
     [self autoLogin];
 
-
+    [self enterMainView];
     //zjj
 //    _token = @"%27%3F*%2F%265%17ryg%7Fq%7B%0F%210%271%24*%15afv%15a%7Cv%7Fa%7Cqxi%7F%7F%7Ch";
 //    [self enterMainView];
@@ -49,6 +49,11 @@
      UIRemoteNotificationTypeAlert
      | UIRemoteNotificationTypeBadge
      | UIRemoteNotificationTypeSound];
+    
+    if([WXApi registerApp:WXAppId])
+    {
+        NSLog(@"weixin registerApp success!");
+    }
     return YES;
 }
 
@@ -107,7 +112,7 @@
         NSString *appid = [res valueForKey:BPushRequestAppIdKey];
         NSString *userid = [res valueForKey:BPushRequestUserIdKey];
         NSString *channelid = [res valueForKey:BPushRequestChannelIdKey];
-        NSString *requestid = [res valueForKey:BPushRequestRequestIdKey];
+//        NSString *requestid = [res valueForKey:BPushRequestRequestIdKey];
         int returnCode = [[res valueForKey:BPushRequestErrorCodeKey] intValue];
         
         if (returnCode == BPushErrorCode_Success) {
@@ -161,7 +166,7 @@
     NSLog(@"Receive Notify: %@", [userInfo JSONString]);
 //    NSString *alert = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
     NSString* message = [userInfo objectForKey:@"IVMALL_PUSH"];
-//    if (application.applicationState == UIApplicationStateActive) {
+    if (application.applicationState == UIApplicationStateInactive) {
 //        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"爱V猫提醒您"
 //                                                            message:[NSString stringWithFormat:@"%@", alert]
 //                                                           delegate:self
@@ -201,7 +206,7 @@
                     
                     PopUpViewController* popUpViewController = [[PopUpViewController shareInstance]initWithNibName:@"PopUpViewController" bundle:nil];
                     
-                    [popUpViewController popViewController:purchaseController fromViewController:[self.window.rootViewController.childViewControllers lastObject] finishViewController:nil];
+                    [popUpViewController popViewController:purchaseController fromViewController:[self.window.rootViewController.childViewControllers lastObject] finishViewController:nil blur:YES];
                 }
             }
         }else if([message hasPrefix:@"Ender_Promotion:"]){
@@ -210,9 +215,15 @@
 //                [[NSUserDefaults standardUserDefaults] setObject:[promotInfo objectAtIndex:2] forKey:@"couponCode"];
 //                [[NSUserDefaults standardUserDefaults]synchronize];
                 _couponCode = [promotInfo objectAtIndex:2] ;
+                if (self.window.rootViewController.childViewControllers) {
+                    UserRegisterViewController* myUserRegisterViewController = [[UserRegisterViewController alloc]init];
+                    myUserRegisterViewController.isFromLoginView = NO;
+                    MyNavigationController* temp = (MyNavigationController*)self.window.rootViewController;
+                    [temp pushViewController:myUserRegisterViewController animated:NO];
+                }
             }
         }
-//    }
+    }
     [application setApplicationIconBadgeNumber:0];
     
     [BPush handleNotification:userInfo];
@@ -235,7 +246,7 @@
     if (_copyright == nil || _charge == nil) {
         [HttpRequest AppConfigDelegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
     }else{
-        [self enterMainView];
+        
     }
 }
 
@@ -246,6 +257,8 @@
         if (buttonIndex == 0) {
             exit(0);
         }
+    }else if(alertView == _wxResultAlertView){
+        [HttpRequest TenPay_TradeResult_Token:_myUserLoginMode.token outTradeNo:[WXPayClient shareInstance].prepareWXPayModel.outTradeNo delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];        
     }else if (alertView.tag == 10000) {
         if (buttonIndex==1) {
             if ([[UIApplication sharedApplication]canOpenURL:_trackViewUrl]) {
@@ -330,6 +343,25 @@
         {
             [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterPayAlipayResult object:nil userInfo:dictionary];
 
+        }else if(request.tag == ALIPAY_QRCODETRADERESULT_TYPE)
+        {
+            TradeResultModel* tradeResultModel = [[TradeResultModel alloc]initWithDictionary:dictionary];
+            
+            if (tradeResultModel.result == 0&&[tradeResultModel.tradeResult isEqualToString:@"true"]) {
+                PayAddModel *lm=[[PayAddModel alloc]init];
+                lm.points = tradeResultModel.points;
+                [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterPayAlipayResult object:nil userInfo:dictionary];
+            }
+            
+        }else if(request.tag == TENPAY_TRADERESULT_TYPE)
+        {
+            TenPayTradeResultModel* tradeResultModel = [[TenPayTradeResultModel alloc]initWithDictionary:dictionary];
+            
+            if (tradeResultModel.result == 0&&[tradeResultModel.tradeResult isEqualToString:@"true"]) {
+                PayAddModel *lm=[[PayAddModel alloc]init];
+                lm.points = tradeResultModel.points;
+                [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterPayAlipayResult object:nil userInfo:dictionary];
+            }
         }
     }
 }
@@ -364,6 +396,32 @@
 
 #endif
 
+-(void)onResp:(BaseResp *)resp
+{
+    NSLog(@"%@",resp);
+    NSLog(@"errStr %@",[resp errStr]);
+    NSLog(@"errCode %d",[resp errCode]);
+    NSLog(@"type %d",[resp type]);
+    if ([resp errCode]) {
+        UIAlertView* alerview = [[UIAlertView alloc]initWithTitle:@"失败" message:[resp errStr] delegate:self cancelButtonTitle:@"知道了" otherButtonTitles:nil, nil];
+        [alerview show];
+    }else{
+        [HttpRequest TenPay_TradeResult_Token:_myUserLoginMode.token outTradeNo:[WXPayClient shareInstance].prepareWXPayModel.outTradeNo delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+    }
+}
+
+-(BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+    //如果涉及其他应用交互,请做如下判断,例如:还可能和新浪微博进行交互
+    if ([url.scheme isEqualToString:WXAppId]) {
+        return [WXApi handleOpenURL:url delegate:self];
+    }else
+    {
+        [self parse:url application:application];
+        return YES;
+    }
+}
+
 -(BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
 {
     [self parse:url application:application];
@@ -380,7 +438,8 @@
 		
 		if (result.statusCode == 9000)
         {
-            [HttpRequest AlipayTradeResultRequestToken:self.myUserLoginMode.token outTradeNo:self.outTradeNo  totalFee:self.totalFee delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+//            [HttpRequest AlipayTradeResultRequestToken:self.myUserLoginMode.token outTradeNo:self.outTradeNo  totalFee:self.totalFee delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+            [HttpRequest AlipayQRCODETradeResultRequestToken:[AppDelegate App].myUserLoginMode.token outTradeNo:self.outTradeNo delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
             
         }
         else

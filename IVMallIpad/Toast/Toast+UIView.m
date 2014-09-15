@@ -75,26 +75,29 @@ static const NSString * CSToastActivityViewKey  = @"CSToastActivityViewKey";
     toast.textAlignment = NSTextAlignmentCenter;
     toast.textColor = [UIColor whiteColor];
     toast.font = [UIFont boldSystemFontOfSize:(iPad?20:14)];
-    toast.layer.cornerRadius = (iPad?20:14);
-
+    
+    toast.frame = CGRectMake(0, 0, iPad?320:160 ,iPad?57:39);
     CGSize size = [toast.text sizeWithFont:toast.font constrainedToSize:CGSizeMake(toast.frame.size.width ,MAXFLOAT)];
     
-    toast.frame = CGRectMake(0, 0, size.width+(iPad?60:15), iPad?57:39);
-    toast.center = self.center;
+    toast.frame = CGRectMake((VIEWHEIGHT-(size.width+(iPad?60:15)))/2, (VIEWWIDTH/2)-(iPad?57:39)-20, size.width+(iPad?60:15), iPad?57:39);
+//    toast.center = self.center;
     toast.alpha = 0.0;
     [self addSubview:toast];
-    
+    toast.layer.masksToBounds = YES;
+    toast.layer.cornerRadius = (iPad?20:14);
     [UIView animateWithDuration:CSToastFadeDuration
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
                          toast.alpha = 1.0;
+                         toast.layer.cornerRadius = (iPad?20:14);
                      } completion:^(BOOL finished) {
                          [UIView animateWithDuration:CSToastFadeDuration
                                                delay:interval
                                              options:UIViewAnimationOptionCurveEaseIn
                                           animations:^{
                                               toast.alpha = 0.0;
+                                              toast.layer.cornerRadius = (iPad?20:14);
                                           } completion:^(BOOL finished) {
                                               [toast removeFromSuperview];
                                           }];

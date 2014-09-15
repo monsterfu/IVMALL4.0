@@ -20,7 +20,6 @@
 #import "PersonalCenterView.h"
 #import "MBProgressHUD.h"
 #import "PopUpViewController.h"
-
 @interface MainViewController ()
 {
     ChannelCategoryListMode* myChannelcategoryListMode;
@@ -40,7 +39,16 @@
     PagesStateEnum myPage;
     
     BOOL statusBarHidder;               //状态条是否隐藏，在iOS7中使用
-    NSUInteger interfaceOrientations;
+    
+    
+//    NSString* selectedCategoryID;
+//    CategoryMode* selectedMode;
+//    UIButton* sixButton;
+//    
+//    UIView*      myRemainingCategoryView;
+//    UITableView* myRemainingCategoryTableView;
+//    UIImageView* currentFlag;
+//    UIView* remainningBackGroundView;
 }
 
 @end
@@ -52,21 +60,21 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
-        interfaceOrientations = UIInterfaceOrientationMaskLandscape;
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(afterLogin:) name:NSNotificationCenterAfterLoginInSuccess object:nil];
-
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(UserImagehadGet:) name:NSNotificationCenterUserImage object:nil];
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(ifShowWifiSetUpButton:) name:NSNotificationCenterExitFromDMC object:nil];
     }
     return self;
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
-    return UIStatusBarStyleBlackTranslucent;
+    return UIStatusBarStyleLightContent;
 }
 
 - (BOOL)prefersStatusBarHidden
 {
-    return statusBarHidder;
+    return YES;
 }
 
 - (void)hideStatubar
@@ -84,7 +92,6 @@
 {
     [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterAfterLoginInSuccess object:nil];
     [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterUserImage object:nil];
-    
     [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterExitFromDMC object:nil];
 }
 
@@ -102,16 +109,12 @@
     if(iPad){
         _UserDefinedPhotoImageView.layer.cornerRadius = 30;
     }else {
-        [self hideStatubar];
         _UserDefinedPhotoImageView.layer.cornerRadius = 15;
-//        _WifiSetupButton.frame = CGRectMake(VIEWHEIGHT-30, 10, 25, 25);
-//        _PlayRecordButton.frame = CGRectMake(VIEWHEIGHT-30-35, 10, 25, 25);
-//        _PersonalCenterButton.frame = CGRectMake(VIEWHEIGHT-30-35-35, 10, 25, 25);
-//        _SortScrollView.frame = CGRectMake(60, 10, VIEWHEIGHT-30-35-35-10-60, 25);
         if (iPhone5) {
             _myBackgroundImageView.image = [UIImage imageNamed:@"iphone_bg.png"];
-            _UserDefinedPhotoImageView.frame = CGRectMake(10, 10, 40, 40);
+            _UserDefinedPhotoImageView.frame = CGRectMake(9, 10, 40, 40);
             _UserDefinedPhotoImageView.layer.cornerRadius = 20;
+            _personalCenterButton.frame = CGRectMake(6, 7, 48, 48);
         }
     }
     _UserDefinedPhotoImageView.layer.borderColor = [UIColor whiteColor].CGColor;
@@ -121,28 +124,17 @@
     _UserDefinedPhotoImageView.clipsToBounds = YES;
     _UserDefinedPhotoImageView.userInteractionEnabled = YES;
     
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(UserImagehadGet:) name:NSNotificationCenterUserImage object:nil];
-    
-    UITapGestureRecognizer* tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(changePicture:)];
-    [_UserDefinedPhotoImageView addGestureRecognizer:tapGesture];
-    _cloudImageView2 = [[UIImageView alloc]init];
-    _cloudImageView2.image = [UIImage imageNamed:@"cloud.png"];
-    [self.view addSubview:_cloudImageView2];
-    [_cloudImageView2 setHidden:YES];
-    
-    //个人中心
-//    [_PersonalCenterButton setImage:[UIImage imageNamed:@"individual2.png"] forState:UIControlStateHighlighted];
-    [_PersonalCenterButton addTarget:self action:@selector(enterPersonalCenterView:) forControlEvents:UIControlEventTouchUpInside];
-    
-    //播放列表
-//    [_PlayRecordButton setImage:[UIImage imageNamed:@"historical2.png"] forState:UIControlStateHighlighted];
-    [_PlayRecordButton addTarget:self action:@selector(enterPlayListView:) forControlEvents:UIControlEventTouchUpInside];
-    
+    //进入个人中心按钮
+    [_personalCenterButton addTarget:self action:@selector(enterPersonalCenterView:) forControlEvents:UIControlEventTouchUpInside];
+
     //进入wifiSetUp页面
-//    [_WifiSetupButton setImage:[UIImage imageNamed:@"Remote2.png"] forState:UIControlStateHighlighted];
     [_WifiSetupButton addTarget:self action:@selector(enterWifiSetUpView:) forControlEvents:UIControlEventTouchUpInside];
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(ifShowWifiSetUpButton:) name:NSNotificationCenterExitFromDMC object:nil];
     [_WifiSetupButton setHidden:YES];
+    
+    
+    //显示剩余分类页面
+//    [_categoryListButton addTarget:self action:@selector(showRemainingView:) forControlEvents:UIControlEventTouchUpInside];
+    
     
     myIndexFeaturedHomeView = [[IndexFeaturedHomeView alloc]init];
     myIndexFeaturedHomeView.delegate = self;
@@ -150,32 +142,31 @@
     myChannelCatContentListView.delegate = self;
     myPersonalCenterView = [[PersonalCenterView alloc]init];
     myPersonalCenterView.delegate = self;
-    myPlayListView = [[PlayListView alloc]init];
-    myPlayListView.delegate = self;
+
     
     myNotWiFiView = [[NotWiFiView alloc]init];
     [myNotWiFiView setNotWiFiStyle:MainViewNotWiFi];
     if (iPad) {
-        myIndexFeaturedHomeView.frame = CGRectMake(0, 130, VIEWHEIGHT, VIEWWIDTH-150);
-        myChannelCatContentListView.frame = CGRectMake(0, 140, VIEWHEIGHT, VIEWWIDTH-160);
+        myIndexFeaturedHomeView.frame = CGRectMake(0, 107, VIEWHEIGHT, VIEWWIDTH-110);
+        myChannelCatContentListView.frame = CGRectMake(0, 107, VIEWHEIGHT, VIEWWIDTH-110);
         myPersonalCenterView.frame = CGRectMake(0, 100, VIEWHEIGHT, VIEWWIDTH-100);
-        myPlayListView.frame = CGRectMake(0, 130, VIEWHEIGHT, VIEWWIDTH-150);
     }else {
         myIndexFeaturedHomeView.frame = CGRectMake(0, 50, VIEWHEIGHT, VIEWWIDTH-50);
         myChannelCatContentListView.frame = CGRectMake(0, 50, VIEWHEIGHT, VIEWWIDTH-50);
         myPersonalCenterView.frame = CGRectMake(0, 50, VIEWHEIGHT, VIEWWIDTH-50);
-        myPlayListView.frame = CGRectMake(0, 50, VIEWHEIGHT, VIEWWIDTH-50);
+
     }
     myNotWiFiView.delegate = self;
+    
     [myIndexFeaturedHomeView setHidden:YES];
     [myChannelCatContentListView setHidden:YES];
     [myPersonalCenterView setHidden:YES];
-    [myPlayListView setHidden:YES];
+
     [myNotWiFiView setHidden:YES];
     [self.view addSubview:myIndexFeaturedHomeView];
     [self.view addSubview:myChannelCatContentListView];
     [self.view addSubview:myPersonalCenterView];
-    [self.view addSubview:myPlayListView];
+
     [self.view addSubview:myNotWiFiView];
     
     
@@ -192,7 +183,7 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-
+    
     if (myChannelcategoryListMode == nil) {
         [self hideBottomView];
         [myMBProgressHUD show:YES];
@@ -201,6 +192,11 @@
     }
 }
 
+-(void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [self hideStatubar];
+}
 -(void)GetErr:(ASIHTTPRequest *)request
 {
     if (request.tag == CHANNEL_CATEGORYLIST_TYPE)
@@ -234,11 +230,10 @@
     }
 }
 
-//自定义头像
 #pragma mark  自定义头像 NSNotificationCenterUserImage
 -(void)UserImagehadGet:(NSNotification*) notification
 {
-
+    
     id object = [notification object];
     if ([object isKindOfClass:[NSString class]])
     {
@@ -247,143 +242,6 @@
     {
         [_UserDefinedPhotoImageView setImage:object];
     }
-
-}
-
--(void)changePicture:(UITapGestureRecognizer*)sender
-{
-    [[AppDelegate App]click];
-    if([AppDelegate App].myUserLoginMode.token)//登录
-    {
-        UIActionSheet*action = [[UIActionSheet alloc]initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"拍照",@"选择本地图片", nil];
-        [action showInView:self.view];
-    }else{
-        UserLoginViewController* myUserLoginViewController = [[UserLoginViewController alloc]init];
-        myUserLoginViewController.myActionState = UnKnownAction;
-        [self.navigationController pushViewController:myUserLoginViewController animated:NO];
-    }
-}
-
-#pragma mark -UIActionSheet delegate
-
--(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
-    if (buttonIndex==0) {
-        [[AppDelegate App]click];
-        UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
-        imagePickerController.delegate = self;
-        imagePickerController.allowsEditing = YES;
-        imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
-        
-        [self presentViewController:imagePickerController animated:YES completion:^{
-            interfaceOrientations = UIInterfaceOrientationMaskAll;
-        }];
-        
-    }else if (buttonIndex==1){
-        [[AppDelegate App]click];
-        UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
-        imagePickerController.delegate = self;
-        imagePickerController.allowsEditing = YES;
-        imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-        
-        [self presentViewController:imagePickerController animated:YES completion:^{
-            interfaceOrientations = UIInterfaceOrientationMaskAll;
-        }];
-    }else if (buttonIndex==2){
-        
-    }
-}
-
-#pragma mark - image picker delegte
-
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info{
-    NSLog(@"从1");
-    UIImage* image = [info objectForKey:UIImagePickerControllerEditedImage];
-    UIImage* newImg = [self imageWithImageSimple:image scaledToSize:CGSizeMake(300, 300)];
-    if (newImg) {
-        [NSThread detachNewThreadSelector:@selector(postData:) toTarget:self withObject:newImg];
-    }
-    [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterUserImage object:newImg];
-    [self dismissViewControllerAnimated:YES completion:^{
-        interfaceOrientations = UIInterfaceOrientationMaskLandscape;
-    }];
-}
-
--(void)postData:(UIImage*)image
-{
-    NSString* url = [NSString stringWithFormat:@"%@/user/updateAvatar.action?token=%@",BASE,[AppDelegate App].myUserLoginMode.token];
-    NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]
-                                                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                                                       timeoutInterval:10];
-    NSString *TWITTERFON_FORM_BOUNDARY = @"0xKhTmLbOuNdArY";
-    
-    //分界线 --AaB03x
-    NSString *MPboundary=[[NSString alloc]initWithFormat:@"--%@",TWITTERFON_FORM_BOUNDARY];
-    //结束符 AaB03x--
-    NSString *endMPboundary=[[NSString alloc]initWithFormat:@"%@--",MPboundary];
-    //得到图片的data
-    NSData* data;
-    if (UIImagePNGRepresentation(image)) {
-        //返回为png图像。
-        data = UIImagePNGRepresentation(image);
-    }else {
-        //返回为JPEG图像。
-        data = UIImageJPEGRepresentation(image, 1.0);
-    }
-    NSMutableString *body=[[NSMutableString alloc]init];
-    [body appendFormat:@"%@\r\n",MPboundary];
-    
-    //声明pic字段，文件名为boris.png
-    [body appendFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"%@\"\r\n",@"file",@"file"];
-    //声明上传文件的格式
-    [body appendFormat:@"Content-Type: image/jpge,image/gif, image/jpeg, image/pjpeg, image/png\r\n\r\n"];
-    //声明结束符：--AaB03x--
-    NSString *end=[[NSString alloc]initWithFormat:@"\r\n%@",endMPboundary];
-    //声明myRequestData，用来放入http body
-    NSMutableData *myRequestData=[NSMutableData data];
-    
-    //将body字符串转化为UTF8格式的二进制
-    [myRequestData appendData:[body dataUsingEncoding:NSUTF8StringEncoding]];
-    
-    [myRequestData appendData:data];
-    
-    [myRequestData appendData:[end dataUsingEncoding:NSUTF8StringEncoding]];
-    
-    //设置HTTPHeader中Content-Type的值
-    NSString *content=[[NSString alloc]initWithFormat:@"multipart/form-data; boundary=%@",TWITTERFON_FORM_BOUNDARY];
-    //设置HTTPHeader
-    [request setValue:content forHTTPHeaderField:@"Content-Type"];
-    //设置Content-Length
-    [request setValue:[NSString stringWithFormat:@"%d", [myRequestData length]] forHTTPHeaderField:@"Content-Length"];
-    //设置http body
-    [request setHTTPBody:myRequestData];
-    //http method
-    [request setHTTPMethod:@"POST"];
-    
-    
-    NSHTTPURLResponse *urlResponese = nil;
-    NSError *error = [[NSError alloc]init];
-    NSData* resultData = [NSURLConnection sendSynchronousRequest:request   returningResponse:&urlResponese error:&error];
-    NSString* result= [[NSString alloc] initWithData:resultData encoding:NSUTF8StringEncoding];
-    NSLog(@"返回结果=====%@,urlResponese statusCode=%d",result,[urlResponese statusCode]);
-    if([urlResponese statusCode] ==200){
-//        [[ivmallAppDelegate App].viewController.leftMenuViewController.tabelView reloadData];
-    }
-    
-}
-
--(UIImage *) imageWithImageSimple:(UIImage*) image scaledToSize:(CGSize) newSize{
-    newSize.height=image.size.height*(newSize.width/image.size.width);
-    UIGraphicsBeginImageContext(newSize);
-    [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
-    UIImage *newImage=UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return  newImage;
-}
-- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker{
-    NSLog(@"从取消");
-    [self dismissViewControllerAnimated:YES completion:^{
-        interfaceOrientations = UIInterfaceOrientationMaskLandscape;
-    }];
     
 }
 
@@ -392,23 +250,15 @@
 
 - (void)enterPersonalCenterView:(UIButton*)button
 {
+    
     [[AppDelegate App]click];
     if ([AppDelegate App].myUserLoginMode.token)
     {
         [self blurScrollViewFocus];
         myPage = PAGE_PERSONAL;
-
-        [_PersonalCenterButton setEnabled:NO];
-        [_WifiSetupButton setEnabled:YES];
-        [_PlayRecordButton setEnabled:YES];
         [myPersonalCenterView show];
-        [_cloudImageView2 setHidden:NO];
-        if (iPad) {
-            _cloudImageView2.frame = CGRectMake(836, 49, 75, 14);
-        }else{
-            _cloudImageView2.frame = CGRectMake(_PersonalCenterButton.frame.origin.x+(_PersonalCenterButton.frame.size.width-40)/2, 32, 40, 9);
-        }
-        [self.view insertSubview:_cloudImageView2 belowSubview:_PersonalCenterButton];
+        [_personalCenterButton setEnabled:NO];
+        
     }else
     {
         UserLoginViewController* myUserLoginViewController = [[UserLoginViewController alloc]init];
@@ -417,35 +267,7 @@
     }
     
 }
-//播放记录
-#pragma mark  播放记录 enterPlayListView
 
-- (void)enterPlayListView:(UIButton*)button
-{
-    [[AppDelegate App]click];
-    if ([AppDelegate App].myUserLoginMode.token) {
-        [self blurScrollViewFocus];
-        myPage = PAGE_PLAYLIST;
-
-        [_PersonalCenterButton setEnabled:YES];
-        [_WifiSetupButton setEnabled:YES];
-        [_PlayRecordButton setEnabled:NO];
-        [myPlayListView show];
-        [_cloudImageView2 setHidden:NO];
-        if (iPad) {
-            _cloudImageView2.frame = CGRectMake(896, 49, 75, 14);
-        }else{
-            _cloudImageView2.frame = CGRectMake(_PlayRecordButton.frame.origin.x+(_PlayRecordButton.frame.size.width-40)/2, 32, 40, 9);
-        }
-        [self.view insertSubview:_cloudImageView2 belowSubview:_PlayRecordButton];
-    }else{
-        UserLoginViewController* myUserLoginViewController = [[UserLoginViewController alloc]init];
-        myUserLoginViewController.myActionState = EnterPlayList;
-        [self.navigationController pushViewController:myUserLoginViewController animated:NO];
-    }
-    
-}
-//wifiSetUP
 #pragma mark  wifiSetUP enterWifiSetUpView
 
 -(void)ifShowWifiSetUpButton:(NSNotification*) notification
@@ -464,7 +286,6 @@
 {
     [[AppDelegate App]click];
     [self blurScrollViewFocus];
-    
     [[IVMallPlayer sharedIVMallPlayer]backToDMCControlFromViewController:self];
 }
 
@@ -476,10 +297,10 @@
     [_SortScrollView addSubview:cloudImageView];
     int count = myChannelcategoryListMode.list.count + 1;
     UIButton *but = nil;
-    for (int i=0; i < count; i++) {
-        UIButton* tempButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    for (int i=0; i <count /*&& i<=6*/; i++) {
+        UIButton* tempButton  = [UIButton buttonWithType:UIButtonTypeCustom];
         if (iPad) {
-            tempButton.titleLabel.font = [UIFont systemFontOfSize:17];
+            tempButton.titleLabel.font = [UIFont systemFontOfSize:21];
         }else{
             tempButton.titleLabel.font = [UIFont systemFontOfSize:17];
         }
@@ -496,17 +317,31 @@
             [tempButton setTitle:@"推荐" forState:UIControlStateNormal];
             selectedButton = tempButton;
             [selectedButton setTitleColor:[Commonality colorFromHexRGB:@"ff7800"] forState:UIControlStateNormal];
-//            [self setColor:[Commonality colorFromHexRGB:@"ff7800"] forButton:selectedButton AndTitle:@"推荐"];
             CGSize size = [tempButton.titleLabel.text sizeWithFont:tempButton.titleLabel.font constrainedToSize:CGSizeMake(tempButton.titleLabel.frame.size.width ,MAXFLOAT)];
-            tempButton.frame = CGRectMake(10,0, size.width+(iPad?30:30), (iPad?43:35));
+            tempButton.frame = CGRectMake((iPad?10:5),0, size.width+(iPad?30:30), (iPad?43:35));
             
-        }else{
+        }else if(i>0 /*&&i<=5*/){
             CategoryMode* tempCategoryMode = [myChannelcategoryListMode.list objectAtIndex:(i-1)];
             [tempButton setTitle:tempCategoryMode.categoryName forState:UIControlStateNormal];
-//            [self setColor:[UIColor blackColor] forButton:tempButton AndTitle:tempCategoryMode.categoryName];
             CGSize size = [tempButton.titleLabel.text sizeWithFont:tempButton.titleLabel.font constrainedToSize:CGSizeMake(tempButton.titleLabel.frame.size.width ,MAXFLOAT)];
             tempButton.frame = CGRectMake(but.frame.origin.x+but.frame.size.width, 0, size.width+(iPad?30:30), (iPad?43:35));
         }
+//        else if(i==6){
+//            selectedCategoryID = [[NSUserDefaults standardUserDefaults]objectForKey:@"selectedCategoryID"];
+//            if (selectedCategoryID) {
+//                selectedMode = [self getSelectedCategory:selectedCategoryID];
+//            }else{
+//                selectedMode = [myChannelcategoryListMode.list objectAtIndex:5];
+//                [[NSUserDefaults standardUserDefaults]setObject:selectedMode.categoryId forKey:@"selectedCategoryID"];
+//            }
+//            
+//            if (selectedMode != nil) {
+//                [tempButton setTitle:selectedMode.categoryName forState:UIControlStateNormal];
+//                tempButton.frame = CGRectMake(but.frame.origin.x+but.frame.size.width, 0, (iPad?90:60), (iPad?43:35));
+//                [_categoryListButton setHidden:NO];
+//                sixButton = tempButton;
+//            }
+//        }
         but = tempButton;
         [tempButton addTarget:self action:@selector(sortChange:) forControlEvents:UIControlEventTouchUpInside];
         [_SortScrollView addSubview:tempButton];
@@ -522,19 +357,27 @@
     if (iPad) {
         cloudImageView.frame = CGRectMake(selectedButton.frame.origin.x+(selectedButton.frame.size.width-75)/2, 29, 75, 14);
     }else{
-        cloudImageView.frame = CGRectMake(selectedButton.frame.origin.x+(selectedButton.frame.size.width-54)/2, 26, 54, 9);
+        cloudImageView.frame = CGRectMake(selectedButton.frame.origin.x+(selectedButton.frame.size.width-68)/2, 26, 68, 9);
     }
     
-    
-    if (iPad) {
-        _blurImage.frame = CGRectMake(_SortScrollView.frame.origin.x+_SortScrollView.frame.size.width-_SortScrollView.frame.size.height, _SortScrollView.frame.origin.y
-                                      , _SortScrollView.frame.size.height, _SortScrollView.frame.size.height);
-        [_blurImage setHidden:NO];
-    }
     myPage =  PAGE_INDEX;
     [myIndexFeaturedHomeView show];
 }
-
+- (CategoryMode*)getSelectedCategory:(NSString*)categoryID
+{
+    for (int i=5; i<myChannelcategoryListMode.list.count; i++)
+    {
+        CategoryMode* tempCategoryMode = [myChannelcategoryListMode.list objectAtIndex:i];
+        if([tempCategoryMode.categoryId isEqualToString:categoryID]){
+            return tempCategoryMode;
+        }
+    }
+    if (myChannelcategoryListMode.list.count >=6) {
+        return [myChannelcategoryListMode.list objectAtIndex:5];
+    }else{
+        return nil;
+    }
+}
 
 - (void)sortChange:(UIButton*)button
 {
@@ -542,32 +385,24 @@
         [[AppDelegate App]click];
         selectedButton = button;
         [selectedButton setTitleColor:[Commonality colorFromHexRGB:@"ff7800"] forState:UIControlStateNormal];
-//        [self setColor:[Commonality colorFromHexRGB:@"ff7800"] forButton:selectedButton AndTitle:nil];
         if (iPad) {
             cloudImageView.frame = CGRectMake(button.frame.origin.x+(button.frame.size.width-75)/2, 29, 75, 14);
         }else{
-            cloudImageView.frame = CGRectMake(button.frame.origin.x+(button.frame.size.width-54)/2, 26, 54, 9);
+            cloudImageView.frame = CGRectMake(button.frame.origin.x+(button.frame.size.width-68)/2, 26, 68, 9);
         }
         [cloudImageView setHidden:NO];
-        [_PersonalCenterButton setEnabled:YES];
-        [_PlayRecordButton setEnabled:YES];
-        [_WifiSetupButton setEnabled:YES];
-        [_cloudImageView2 setHidden:YES];
-        
+        [_personalCenterButton setEnabled:YES];
     }else{
-        if (selectedButton.tag != button.tag) {
+        if (selectedButton.tag != button.tag /*|| button == sixButton*/) {
             [[AppDelegate App]click];
             [selectedButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-//            [self setColor:[UIColor blackColor] forButton:selectedButton AndTitle:nil];
-            
             selectedButton = button;
             [selectedButton setTitleColor:[Commonality colorFromHexRGB:@"ff7800"] forState:UIControlStateNormal];
-//            [self setColor:[Commonality colorFromHexRGB:@"ff7800"] forButton:selectedButton AndTitle:nil];
             
             if (iPad) {
                 cloudImageView.frame = CGRectMake(button.frame.origin.x+(button.frame.size.width-75)/2, 29, 75, 14);
             }else{
-                cloudImageView.frame = CGRectMake(button.frame.origin.x+(button.frame.size.width-54)/2, 26, 54, 9);
+                cloudImageView.frame = CGRectMake(button.frame.origin.x+(button.frame.size.width-68)/2, 26, 68, 9);
             }
             
         }else{
@@ -580,7 +415,14 @@
     if (index == 0) {
         myPage =  PAGE_INDEX;
         [myIndexFeaturedHomeView show];
-    }else{
+    }
+//    else if(index == 6)
+//    {
+//        myPage = PAGE_CATEGORY;
+//        myChannelCatContentListView.categoryId = selectedMode.categoryId;
+//        [myChannelCatContentListView show];
+//    }
+    else{
         if (index >= 1 && index <= myChannelcategoryListMode.list.count) {
             myPage = PAGE_CATEGORY;
             CategoryMode* myCategoryMode = [myChannelcategoryListMode.list objectAtIndex:(index-1)];
@@ -592,21 +434,6 @@
     }
 }
 
-- (void)setColor:(UIColor*)color forButton:(UIButton*)button AndTitle:(NSString*)title
-{
-    if (title == nil) {
-        title = button.titleLabel.text;
-    }
-    NSAttributedString *attributedText =
-    [[NSAttributedString alloc] initWithString:title
-                                    attributes:@{
-                                                 NSFontAttributeName:[UIFont boldSystemFontOfSize:iPad?20:13],
-                                                 NSStrokeWidthAttributeName: [NSNumber numberWithInt:-3.5],
-                                                 NSStrokeColorAttributeName: [UIColor  whiteColor],
-                                                 NSForegroundColorAttributeName:color }];
-    [button setAttributedTitle:attributedText forState:UIControlStateNormal];
-
-}
 - (void)blurScrollViewFocus
 {
     [selectedButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
@@ -614,26 +441,193 @@
     [cloudImageView setHidden:YES];
 }
 
-#pragma mark UIScrollViewDelegate
-- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
-{
-    
-}
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
-{
-    
-}
-
+//显示剩余分类页面
+//- (void)showRemainingView:(UIButton*)sender
+//{
+//    if (myRemainingCategoryView == nil) {
+//        remainningBackGroundView = [[UIView alloc]init];
+//        remainningBackGroundView.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+//        remainningBackGroundView.backgroundColor = [UIColor clearColor];
+//        [self.view addSubview:remainningBackGroundView];
+//        
+//        UITapGestureRecognizer* tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pressedRemainningBackGroundView:)];
+//        [remainningBackGroundView addGestureRecognizer:tapGesture];
+//        
+//        myRemainingCategoryView = [[UIView alloc]init];
+//        myRemainingCategoryView.frame = CGRectMake(_categoryListButton.frame.origin.x-((156-_categoryListButton.frame.size.width)/2), _categoryListButton.frame.origin.y, 156, (55+46*MIN(myChannelcategoryListMode.list.count-5, 10)+27));
+//        myRemainingCategoryView.backgroundColor = [UIColor clearColor];
+//        [self.view addSubview:myRemainingCategoryView];
+//        
+//        UIButton* remainingTop = [UIButton buttonWithType:UIButtonTypeCustom];
+//        remainingTop.frame = CGRectMake(0, 0, 156, 55);
+//        [remainingTop setBackgroundImage:[UIImage imageNamed:@"fenlei_03.png"] forState:UIControlStateNormal];
+//        [remainingTop addTarget:self action:@selector(hideRemainingView:) forControlEvents:UIControlEventTouchUpInside];
+//        [myRemainingCategoryView addSubview:remainingTop];
+//        
+//        myRemainingCategoryTableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 55, 156, 46*MIN(myChannelcategoryListMode.list.count-5, 10)) style:UITableViewStylePlain];
+//        myRemainingCategoryTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+//
+//        myRemainingCategoryTableView.frame = CGRectMake(0, 55, 156, 46*MIN(myChannelcategoryListMode.list.count-5, 10));
+//        myRemainingCategoryTableView.delegate = self;
+//        myRemainingCategoryTableView.dataSource = self;
+//        myRemainingCategoryTableView.backgroundColor = [UIColor clearColor];
+//        myRemainingCategoryTableView.backgroundView = nil;
+//        if (myChannelcategoryListMode.list.count-5>10) {
+//            myRemainingCategoryTableView.scrollEnabled = YES;
+//        }else{
+//            myRemainingCategoryTableView.scrollEnabled = NO;
+//        }
+//        [myRemainingCategoryView addSubview:myRemainingCategoryTableView];
+//
+//
+//        UIImageView* remainingDown = [[UIImageView alloc]init];
+//        remainingDown.frame = CGRectMake(0, 55+46*MIN(myChannelcategoryListMode.list.count-5, 10), 156, 27);
+//        remainingDown.image = [UIImage imageNamed:@"fenlei_16.png"];
+//        [myRemainingCategoryView addSubview:remainingDown];
+//    }
+//    [myRemainingCategoryTableView reloadData];
+//    remainningBackGroundView.hidden = NO;
+//    myRemainingCategoryView.hidden = NO;
+//    
+//}
+//
+//- (void)pressedRemainningBackGroundView:(UITapGestureRecognizer*)gestureRecognizer
+//{
+//    remainningBackGroundView.hidden = YES;
+//    myRemainingCategoryView.hidden = YES;
+//}
+//
+//- (void)hideRemainingView:(UIButton*)sender
+//{
+//    remainningBackGroundView.hidden = YES;
+//    myRemainingCategoryView.hidden = YES;
+//}
+#pragma mark tableView delegate
+//-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+//{
+//    return 1;
+//}
+//
+//- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+//{
+//    return myChannelcategoryListMode.list.count-5;
+//}
+//- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+//    static NSString *CellIdentifier = @"Cell";
+//    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+//    if (cell == nil){
+//        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+//        cell.backgroundColor = [UIColor clearColor];
+//        UIImageView* tempImageView = [[UIImageView alloc]initWithFrame:CGRectMake(0, -0.5, 156, 47)];
+//        tempImageView.image = [UIImage imageNamed:@"fenlei_05.png"];
+//        [cell addSubview:tempImageView];
+//    }
+//    
+//    CategoryMode* tempCategory = [myChannelcategoryListMode.list objectAtIndex:(indexPath.row+5)];
+//    
+//    UIImageView* flagView2 = (UIImageView*)[cell viewWithTag:503];
+//    if (flagView2 == nil) {
+//        flagView2 = [[UIImageView alloc]init];
+//        flagView2.tag = 503;
+//        flagView2.frame = CGRectMake(12, 2, 128, 42);
+//        flagView2.image = [UIImage imageNamed:@"fenlei_07.png"];
+//        
+//        [cell addSubview:flagView2];
+//    }
+//    [flagView2 setHidden:YES];
+//    
+//    UILabel* titleLabel = (UILabel*)[cell viewWithTag:501];
+//    if (titleLabel == nil) {
+//        titleLabel = [[UILabel alloc]init];
+//        titleLabel.tag = 501;
+//        titleLabel.backgroundColor = [UIColor clearColor];
+//        
+//        if (iPad) {
+//            titleLabel.font = [UIFont boldSystemFontOfSize:20];
+//            titleLabel.frame = CGRectMake(34, 0, 80, 46);
+//        }else{
+//            
+//        }
+//        [cell addSubview:titleLabel];
+//    }
+//    titleLabel.textColor = [UIColor whiteColor];
+//    titleLabel.text = tempCategory.categoryName;
+//    
+//    UIImageView* flagView = (UIImageView*)[cell viewWithTag:502];
+//    if (flagView == nil) {
+//        flagView = [[UIImageView alloc]init];
+//        flagView.tag = 502;
+//        flagView.frame = CGRectMake(114, 12, 22, 22);
+//        flagView.image = [UIImage imageNamed:@"fenlei2_13.png"];
+//        [cell addSubview:flagView];
+//    }
+//    
+//    if ([tempCategory.categoryId isEqualToString:selectedCategoryID]) {
+//        [flagView setHidden:NO];
+//        currentFlag = flagView;
+//    }else{
+//        [flagView setHidden:YES];
+//    }
+//    
+//    return cell;
+//}
+//
+//-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    return 46;
+//}
+//
+//- (void)tableView:(UITableView *)tableView didHighlightRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    [currentFlag setHidden:YES];
+//    UITableViewCell* tempCell = [tableView cellForRowAtIndexPath:indexPath];
+//    UILabel* titleLabel = (UILabel*)[tempCell viewWithTag:501];
+//    titleLabel.textColor = [UIColor blackColor];
+//    UIImageView* flagView = (UIImageView*)[tempCell viewWithTag:502];
+//    flagView.image = [UIImage imageNamed:@"fenlei_13.png"];
+//    [flagView setHidden:NO];
+//    UIImageView* flagView2 = (UIImageView*)[tempCell viewWithTag:503];
+//    [flagView2 setHidden:NO];
+//    
+//}
+//- (void)tableView:(UITableView *)tableView didUnhighlightRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    UITableViewCell* tempCell = [tableView cellForRowAtIndexPath:indexPath];
+//    UILabel* titleLabel = (UILabel*)[tempCell viewWithTag:501];
+//    titleLabel.textColor = [UIColor whiteColor];
+//    UIImageView* flagView = (UIImageView*)[tempCell viewWithTag:502];
+//    flagView.image = [UIImage imageNamed:@"fenlei2_13.png"];
+//    [flagView  setHidden:YES];
+//    UIImageView* flagView2 = (UIImageView*)[tempCell viewWithTag:503];
+//    [flagView2 setHidden:YES];
+//    [currentFlag setHidden:NO];
+//}
+//
+//- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    remainningBackGroundView.hidden = YES;
+//    myRemainingCategoryView.hidden = YES;
+//    CategoryMode* tempCategoryMode = [myChannelcategoryListMode.list objectAtIndex:(5+indexPath.row)];
+//    selectedCategoryID = tempCategoryMode.categoryId;
+//    selectedMode = tempCategoryMode;
+//    [[NSUserDefaults standardUserDefaults]setObject:selectedMode.categoryId forKey:@"selectedCategoryID"];
+//    UIButton* tempButton = (UIButton*)[_SortScrollView viewWithTag:(1000+6)];
+//    [tempButton removeFromSuperview];
+//    [sixButton setTitle:tempCategoryMode.categoryName forState:UIControlStateNormal];
+//    [_SortScrollView addSubview:sixButton];
+//    [self sortChange:sixButton];
+//
+//}
 //页面切换
 #pragma mark 页面切换
--(void)buyVip
+-(void)buyVip:(PurchaseCompletionHandler)fun
 {
     [[AppDelegate App]click];
-    PurchaseAndRechargeManagerController* purchaseController = [[PurchaseAndRechargeManagerController alloc]initWithNibName:nil bundle:nil mode:ProcessModeEnum_Purchase completionHandler:nil];
+    PurchaseAndRechargeManagerController* purchaseController = [[PurchaseAndRechargeManagerController alloc]initWithNibName:nil bundle:nil mode:ProcessModeEnum_Purchase completionHandler:fun];
     
     PopUpViewController* popUpViewController = [[PopUpViewController shareInstance]initWithNibName:@"PopUpViewController" bundle:nil];
     
-    [popUpViewController popViewController:purchaseController fromViewController:self finishViewController:nil];
+    [popUpViewController popViewController:purchaseController fromViewController:self finishViewController:nil  blur:YES];
 }
 -(PagesStateEnum)pageState
 {
@@ -660,17 +654,20 @@
 {
     [myNotWiFiView setHidden:NO];
 }
+- (void)hideNotWifiView
+{
+    [myNotWiFiView setHidden:YES];
+}
 
-//-(void)enterViewController:(UIViewController*)newViewController
-//{
-//    PopUpViewController* popupViewController = [[PopUpViewController alloc]initWithViewController:newViewController];
-//    
-//    [popupViewController popViewController:newViewController fromViewController:self center:self.view.center];
-//}
 
 - (UINavigationController*)getNavigation
 {
     return self.navigationController;
+}
+
+- (UIView*)getMianView
+{
+    return self.view;
 }
 - (void)refresh
 {
@@ -694,14 +691,18 @@
 
 - (void)afterLogin:(NSNotification*)notification
 {
+    NSLog(@"%@",[self.navigationController.childViewControllers lastObject]);
     ActionState temp = [[notification object]integerValue];
     if (temp == EnterPlayList) {
-        [self enterPlayListView:_PlayRecordButton];
+//        [self enterPlayListView:_PlayRecordButton];
         return;
     }else if (temp == EnterPerson){
-        [self enterPersonalCenterView:_PersonalCenterButton];
+        [self blurScrollViewFocus];
+        myPage = PAGE_PERSONAL;
+        [myPersonalCenterView show];
+        [_personalCenterButton setEnabled:NO];
         return;
-    }else if (temp == PlayVideo)
+    }else if (temp == IndexPlayVideo)
     {
         [myIndexFeaturedHomeView playBefoerLoginVideo];
     }
@@ -724,8 +725,8 @@
 //为了支持iOS6
 -(NSUInteger)supportedInterfaceOrientations
 {
-//    return UIInterfaceOrientationMaskLandscape;
-    return interfaceOrientations;
+    return UIInterfaceOrientationMaskLandscape;
+
 }
 
 - (void)didReceiveMemoryWarning

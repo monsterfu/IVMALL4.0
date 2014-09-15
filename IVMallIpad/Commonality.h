@@ -36,7 +36,7 @@
 + (UIImage *) imageFromColor:(UIColor *)color;
 
 +(UIView *) makeButtonShadowViewWhitbtn:(UIButton *)btn;
-
++ (UIImage*) createImageWithColor: (UIColor*) color;
 //zjj
 + (NSString *) Date2Str1:(NSDate *)indate;
 + (NSDate *)dateFromString:(NSString *)string;
@@ -50,4 +50,12 @@
 + (NSString *) Date2Str3:(NSDate *)indate;
 
 //mjh
+
+//Monster
++ (NSString *)sha1:(NSString *)input;
+
++ (NSString *)getIPAddress:(BOOL)preferIPv4;
+
++ (NSDictionary *)getIPAddresses;
+//Monster
 @end

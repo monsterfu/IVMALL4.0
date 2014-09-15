@@ -12,5 +12,7 @@
 @property(nonatomic,assign)int errorCode;
 @property(nonatomic,strong)NSString* errorMessage;
 @property(nonatomic,strong)NSString* anonymousTips;
+@property(nonatomic,strong)NSString* vipExpiryTime;
+@property(nonatomic,strong)NSString* currentTime;
 - (id)initWithDictionary:(NSDictionary *)dictionary;
 @end

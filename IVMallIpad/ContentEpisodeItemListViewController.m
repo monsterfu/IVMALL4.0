@@ -22,6 +22,7 @@
 #import "AnonymousLoginMode.h"
 #import "AppTipsModel.h"
 #import "EpisodeDescriptionViewController.h"
+#import "UserRegisterViewController.h"
 @interface ContentEpisodeItemListViewController ()
 {
     NSArray* langsArray;
@@ -44,9 +45,13 @@
     NSString* videoName;
     NSString* contentGuid;
     NSString* playURL;
-    
-    BOOL hadRefreshALL;
     NSString* currentLang;
+    BOOL firstShow;
+    
+    connectionPlayProType myconnectionPlayProType;
+    
+    
+    UIView* giftView;
 }
 
 @end
@@ -58,6 +63,7 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+        NSLog(@"1236**************begin*******");
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(afterLogin:) name:NSNotificationCenterAfterLoginInSuccess object:nil];
     }
     return self;
@@ -65,17 +71,22 @@
 
 - (void)afterLogin:(NSNotification*)notification
 {
+    NSLog(@"1236*********************");
     ActionState temp = [[notification object]integerValue];
-    if (temp == PlayVideo)
+    if (temp == PlayVideo && contentGuid!=nil)
     {
-        NSString* preferenceKey = [NSString stringWithFormat:@"play.positon.%@",contentGuid];
-        [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey:preferenceKey preferenceValue:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+        [HttpRequest ProductPlayRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
     }
+}
+- (void)playBefoerLoginVideo
+{
+    [HttpRequest ProductPlayRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
 }
 
 -(void)dealloc
 {
-    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterAfterLoginInSuccess object:nil];
+    NSLog(@"1236********end*************");
+//    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterAfterLoginInSuccess object:nil];
 }
 
 - (void)viewDidLoad
@@ -112,17 +123,27 @@
     _contentCollectionView.backgroundColor = [UIColor clearColor];
      _scrollView.backgroundColor = [Commonality colorFromHexRGB:@"f1ffe5"];
     [myMBProgressHUD show:YES];
-
-    if (langsArray == nil) {
-        currentLang = @"zh-cn";
-    }else{
-        currentLang = [langsArray objectAtIndex:0];
-    }
-    [HttpRequest ContentEpisodeItemListRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:_episodeGuid lang:currentLang delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
     
-    hadRefreshALL = NO;
+    if (_latestPlayLang == nil) {
+        currentLang = @"zh-cn";
+        [_langButton1 setSelected:YES];
+        [_langButton2 setSelected:NO];
+    }else{
+        if ([_latestPlayLang isEqualToString:@"en-gb"]) {
+            currentLang = _latestPlayLang;
+            [_langButton1 setSelected:NO];
+            [_langButton2 setSelected:YES];
+        }else{
+            currentLang = @"zh-cn";
+            [_langButton1 setSelected:YES];
+            [_langButton2 setSelected:NO];
+        }
+    }
+    
+    [HttpRequest ContentEpisodeItemListRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:_episodeGuid lang:@"zh-cn" delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+    
     if ([AppDelegate App].myUserLoginMode.token) {
-        NSString* preferenceKey = [NSString stringWithFormat:@"episode.%@",_episodeGuid];
+        NSString* preferenceKey = [NSString stringWithFormat:@"episode.%@.%@",_episodeGuid,currentLang];
         [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey: preferenceKey preferenceValue:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
     }
         
@@ -135,23 +156,23 @@
         _exitButton.frame = CGRectMake((iPhone5?89:46), 32, 30, 30);
     }
      [self.view bringSubviewToFront:_exitButton];
+    if ([self.navigationController childViewControllers].count >2) {
+        [_exitButton setBackgroundImage:[UIImage imageNamed:@"icon_07-18.png"] forState:UIControlStateNormal];
+        [_exitButton setBackgroundImage:[UIImage imageNamed:@"icon_07-19.png"] forState:UIControlStateHighlighted];
+    }else{
+        [_exitButton setBackgroundImage:[UIImage imageNamed:@"close.png"] forState:UIControlStateNormal];
+        [_exitButton setBackgroundImage:[UIImage imageNamed:@"close_sel.png"] forState:UIControlStateHighlighted];
+    }
 }
 
 - (void)refresh
 {
     [myMBProgressHUD show:YES];
     _scrollView.backgroundColor = [Commonality colorFromHexRGB:@"f1ffe5"];
-    if (!hadRefreshALL) {
-        if (langsArray == nil) {
-            currentLang = @"zh-cn";
-        }else{
-            currentLang = [langsArray objectAtIndex:0];
-        }
-        
-        if ([AppDelegate App].myUserLoginMode.token) {
-            NSString* preferenceKey = [NSString stringWithFormat:@"episode.%@",_episodeGuid];
-            [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey: preferenceKey preferenceValue:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-        }
+    
+    if ([AppDelegate App].myUserLoginMode.token) {
+        NSString* preferenceKey = [NSString stringWithFormat:@"episode.%@.%@",_episodeGuid,currentLang];
+        [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey: preferenceKey preferenceValue:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
     }
 
     [HttpRequest ContentEpisodeItemListRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:_episodeGuid lang:currentLang delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
@@ -163,16 +184,13 @@
 {
     if (request.tag == CONTENT_EPISODEITEMLIST_TYPE || request.tag-1 ==CONTENT_EPISODEITEMLIST_TYPE ) {
         [myMBProgressHUD hide:YES];
-        if (hadRefreshALL) {
-            [downNotWiFiView setHidden:NO];
-             [_eposideScrollerView setHidden:YES];
-        }else{
-            [myNotWiFiView setHidden:NO];
-            _scrollView.backgroundColor = [Commonality colorFromHexRGB:@"eeeeee"];
-        }
+        [myNotWiFiView setHidden:NO];
+        _scrollView.backgroundColor = [Commonality colorFromHexRGB:@"eeeeee"];
+
     }else if(request.tag == USER_PREFERENCE_GET_TYPE || request.tag == PRODUCT_PLAY_TYPE || request.tag == APP_TIPS_TYPE || request.tag == ANONYMOUS_LOGIN_TYPE)
     {
         [myMBProgressHUD hide:YES];
+        self.view.userInteractionEnabled = YES;
     }
 }
 
@@ -184,85 +202,112 @@
     {
         if (request.tag == CONTENT_EPISODEITEMLIST_TYPE || request.tag-1 ==CONTENT_EPISODEITEMLIST_TYPE) {
             [myMBProgressHUD hide:YES];
-            if (hadRefreshALL) {
-                [downNotWiFiView setHidden:NO];
-                [_eposideScrollerView setHidden:YES];
-            }else{
-                [myNotWiFiView setHidden:NO];
-                _scrollView.backgroundColor = [Commonality colorFromHexRGB:@"eeeeee"];
-            }
+            [myNotWiFiView setHidden:NO];
+            _scrollView.backgroundColor = [Commonality colorFromHexRGB:@"eeeeee"];
+
         }else if(request.tag == USER_PREFERENCE_GET_TYPE || request.tag == PRODUCT_PLAY_TYPE || request.tag == APP_TIPS_TYPE || request.tag == ANONYMOUS_LOGIN_TYPE)
         {
             [myMBProgressHUD hide:YES];
+            self.view.userInteractionEnabled = YES;
         }
     }else{
         
-        if (request.tag == CONTENT_EPISODEITEMLIST_TYPE) {
-            [myMBProgressHUD hide:YES];
+        if (request.tag == CONTENT_EPISODEITEMLIST_TYPE  || request.tag - 1 == CONTENT_EPISODEITEMLIST_TYPE) {
+            
             myContentEpisodeItemListModel = [[ContentEpisodeItemListModel alloc]initWithDictionary:dictionary];
             if (myContentEpisodeItemListModel.errorCode == 0) {
                 [self refreshAllView];
+                if (request.tag == CONTENT_EPISODEITEMLIST_TYPE  &&  [currentLang isEqualToString:@"en-gb"]) {
+                    [HttpRequest ContentEpisodeItemListRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:_episodeGuid lang:currentLang delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+                }else{
+                    [myMBProgressHUD hide:YES];
+                }
             }else{
                 [Commonality showErrorMsg:self.view type:0 msg:myContentEpisodeItemListModel.errorMessage];
+                [myMBProgressHUD hide:YES];
             }
-        }else if (request.tag - 1 == CONTENT_EPISODEITEMLIST_TYPE)
-        {
-            [myMBProgressHUD hide:YES];
-            myContentEpisodeItemListModel = [[ContentEpisodeItemListModel alloc]initWithDictionary:dictionary];
-            if (myContentEpisodeItemListModel.errorCode == 0) {
-                [self refreshDownView];
-            }else{
-                [Commonality showErrorMsg:self.view type:0 msg:myContentEpisodeItemListModel.errorMessage];
-            }
-        }else if(request.tag == USER_PREFERENCE_GET_TYPE)
+        }
+        else if(request.tag == USER_PREFERENCE_GET_TYPE)
         {
             UserPreferenceModel* myUserPrefernceModel = [[UserPreferenceModel alloc]initWithDictionary:dictionary];
             if (myUserPrefernceModel.errorCode == 0) {
                 if ([myUserPrefernceModel.preferenceKey hasPrefix:@"episode"]) {
                     [self showPlayRecordWithValue:myUserPrefernceModel.preferenceValue];
-                }else if([myUserPrefernceModel.preferenceKey hasPrefix:@"play.positon"]){
-                    startTime = [myUserPrefernceModel.preferenceValue intValue];
-                    if ([AppDelegate App].myUserLoginMode.token) {
-                        [HttpRequest ProductPlayRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-                    }else{
-//                        [HttpRequest ProductPlayRequestToken:[AppDelegate App].myAnonymousLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-                    }
                 }
+
             }
         }
         else if (request.tag == APP_TIPS_TYPE){
             [myMBProgressHUD hide:YES];
             AppTipsModel* temp = [[AppTipsModel alloc]initWithDictionary:dictionary];
             if (temp.errorCode == 0) {
-                NSString* copyright=[[NSUserDefaults standardUserDefaults] objectForKey:@"copyright_Ivmall"];
-                if (copyright && [copyright isEqualToString:@"true"] ) {
-                    [Commonality showTipsMsgWithView:self.view duration:3 msg:temp.anonymousTips image:[UIImage imageNamed:@"libao_bg.png"]];
-                    [self performSelector:@selector(anonymousPlay) withObject:nil afterDelay:3.0];
+                NSDate* vipExpiryTime = [Commonality dateFromString:temp.vipExpiryTime];
+                NSDate* currentTime = [Commonality dateFromString:temp.currentTime];
+                if ([vipExpiryTime earlierDate:currentTime] == currentTime) {
+                    NSString* copyright=[[NSUserDefaults standardUserDefaults] objectForKey:@"copyright_Ivmall"];
+                    if (copyright && [copyright isEqualToString:@"true"] ) {
+                        if (giftView == nil) {
+                            if (iPad) {
+                                giftView = [[[NSBundle mainBundle] loadNibNamed:@"GiftViewForiPad" owner:self options:nil]objectAtIndex:0];
+                            }else{
+                            
+                                giftView = [[[NSBundle mainBundle] loadNibNamed:@"GiftViewForiPhone" owner:self options:nil]objectAtIndex:0];
+                            }
+                            [self.view addSubview:giftView];
+                            giftView.frame = CGRectMake(0, 0, 1024, 768);
+                            
+                            UIButton* button1 = (UIButton*)[giftView viewWithTag:102];
+                            button1.exclusiveTouch = YES;
+                            [button1 addTarget:self action:@selector(getThePackage:) forControlEvents:UIControlEventTouchUpInside];
+                            UIButton* button2 = (UIButton*)[giftView viewWithTag:103];
+                            button2.exclusiveTouch = YES;
+                            [button2 addTarget:self action:@selector(anonymousPlay) forControlEvents:UIControlEventTouchUpInside];
+                        }
+                        
+                        UILabel* label1 = (UILabel*)[giftView viewWithTag:100];
+                        label1.text = [NSString stringWithFormat:@"免注册可观看到 %@",[Commonality Date2Str3:vipExpiryTime]];
+                        UILabel* label2 = (UILabel*)[giftView viewWithTag:101];
+                        label2.text = temp.anonymousTips;
+                        [giftView setHidden:NO];
+                        self.view.userInteractionEnabled = YES;
+                        
+                    }else{
+                        [self anonymousPlay];
+                    }
                 }else{
-                    [self anonymousPlay];
+                    [self enterLoginView:PlayVideo];
                 }
             }else{
                 [Commonality showErrorMsg:self.view type:0 msg:temp.errorMessage];
+                self.view.userInteractionEnabled = YES;
             }
         }
         else if(request.tag == ANONYMOUS_LOGIN_TYPE){
             [AppDelegate App].myAnonymousLoginMode = [[AnonymousLoginMode alloc]initWithDictionary:dictionary];
             if ([AppDelegate App].myAnonymousLoginMode.errorCode == 0) {
-                [HttpRequest AppTipsRequestDelegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+                [HttpRequest AppTipsRequestRequestToken:[AppDelegate App].myAnonymousLoginMode.token key:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+                [HttpRequest DevicesBindRequestToken:[AppDelegate App].myAnonymousLoginMode.token delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+
             }else{
                 [myMBProgressHUD hide:YES];
-//                [Commonality showErrorMsg:self.view type:0 msg:[AppDelegate App].myAnonymousLoginMode.errorMessage];
                 [self enterLoginView:PlayVideo];
+                self.view.userInteractionEnabled = YES;
+                NSLog(@"1237*********************");
             }
+        }else if (request.tag == FAVORITE_DELBYGUID_TYPE || request.tag == FAVORITE_ADD_TYPE)
+        {
+            [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterContentCollectAction object:nil];
         }
         else if(request.tag == PRODUCT_PLAY_TYPE)
         {
+            NSLog(@"1238**********************");
             [myMBProgressHUD hide:YES];
             ProductPlayModel* myProductPlayMode = [[ProductPlayModel alloc]initWithDictionary:dictionary];
             if (myProductPlayMode.errorCode == 0) {
                 playURL = nil;
                 if ([Commonality isEmpty:myProductPlayMode.URI] && [Commonality isEmpty:myProductPlayMode.catchupURI ]) {
                     [Commonality showErrorMsg:self.view type:0 msg:@"该视频不存在!"];
+                    self.view.userInteractionEnabled = YES;
                     return;
                 }else{
                     if ([Commonality isEmpty:myProductPlayMode.URI]) {
@@ -272,11 +317,20 @@
                     }
                     
                     [IVMallPlayer sharedIVMallPlayer].delegate = self;
-                    [[AppDelegate App] play];
-                    [[IVMallPlayer sharedIVMallPlayer]IVMallPlayerStart:playURL withVideoName:videoName fromViewController:self startTime:startTime];
+                    [self setPlayUrlTheRangOfCategory];
+                    if (self.presentedViewController == nil) {
+                        [[AppDelegate App] play];
+                        [[IVMallPlayer sharedIVMallPlayer]IVMallPlayerStart:playURL withVideoName:videoName withConnectionPlayProType:myconnectionPlayProType fromViewController:self startTime:startTime];
+                    }else{
+                        
+                        [[IVMallPlayer sharedIVMallPlayer]IVMallPlayerSetUrl:playURL withConnectionPlayProType:myconnectionPlayProType andVideoName:videoName];
+                    }
+                    [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterPlayVideo object:nil];
+                    self.view.userInteractionEnabled = YES;
                 }
             }else{
                 if ([AppDelegate App].myUserLoginMode.token) {
+                    self.view.userInteractionEnabled = YES;
                     if (myProductPlayMode.errorCode == 204 || myProductPlayMode.errorCode == 224) {
                         NSString* copyright=[[NSUserDefaults standardUserDefaults] objectForKey:@"copyright_Ivmall"];
                         if (copyright && [copyright isEqualToString:@"true"] ) {
@@ -289,11 +343,18 @@
                         [Commonality showErrorMsg:self.view type:0 msg:myProductPlayMode.errorMessage];
                     }
                 }else{
-                    NSString* copyright=[[NSUserDefaults standardUserDefaults] objectForKey:@"copyright_Ivmall"];
-                    if (copyright && [copyright isEqualToString:@"true"] ) {
-                        [Commonality showTipsMsgWithView:self.view duration:3.0 msg:@"你的免注册观看已到期" image:[UIImage  imageNamed: @"libao_bg.png"]];
+                    if (myProductPlayMode.errorCode == 204 || myProductPlayMode.errorCode == 224) {
+//                        NSString* copyright=[[NSUserDefaults standardUserDefaults] objectForKey:@"copyright_Ivmall"];
+//                        if (copyright && [copyright isEqualToString:@"true"] ) {
+//                            [Commonality showTipsMsgWithView:self.view duration:3.0 msg:@"您的免注册观看已到期" image:[UIImage  imageNamed: @"libao_bg.png"]];
+//                            
+//                        }
+                        
+                    }else{
+                        [Commonality showErrorMsg:self.view type:0 msg:myProductPlayMode.errorMessage];
                     }
                     [self performSelector:@selector(enterLoginView:) withObject:PlayVideo afterDelay:3.0];
+
                 }
 
             }
@@ -303,44 +364,74 @@
     }
 }
 
+- (void)getThePackage:(UIButton*)button
+{
+    [giftView setHidden:YES];
+    UserRegisterViewController* myUserRegisterViewController = [[UserRegisterViewController alloc]init];
+    myUserRegisterViewController.isFromLoginView = NO;
+    [self.navigationController pushViewController:myUserRegisterViewController animated:NO];
+}
+
+- (void)setPlayUrlTheRangOfCategory
+{
+    if (myContentEpisodeItemListModel.list.count == 1) {
+        myconnectionPlayProType = VideoNotEpisode;
+    }else{
+        if (currentPlayIndex == myContentEpisodeItemListModel.list.count-1) {
+            myconnectionPlayProType = LastVideoOfEpisode;
+            return;
+        }else if(currentPlayIndex == 0){
+            myconnectionPlayProType = FirstVideoOfEpisode;
+            return;
+        }else{
+            myconnectionPlayProType = MiddleVideoOfEpisode;
+        }
+    }
+}
+
 -(void)PlayerCallBack:(PlayerCallBackEventType)callBackEventType withParameter: (NSMutableDictionary *)callBackInfo
 {
-    [IVMallPlayer sharedIVMallPlayer].delegate=nil;
     if (callBackEventType == PlayerWillPlaybackEnded) {
-        if (currentPlayIndex < myContentEpisodeItemListModel.list.count-1) {
-            currentPlayIndex++;
-            if (currentPlayIndex>=0 && currentPlayIndex <myContentEpisodeItemListModel.list.count) {
-                ContentItem* tempContentItem = [myContentEpisodeItemListModel.list objectAtIndex:currentPlayIndex];
-                videoName = tempContentItem.contentTitle;
-                contentGuid = tempContentItem.contentGuid;
-                startTime = 0;
-                if ([AppDelegate App].myUserLoginMode.token) {
-                    [HttpRequest ProductPlayRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-                }else{
-//                    [HttpRequest ProductPlayRequestToken:[AppDelegate App].myAnonymousLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-                }
+        int playEndReson = [[callBackInfo objectForKey:@"playbackEndType"]intValue];
+        if (playEndReson == 2 || playEndReson == 4) {
 
+        }else {
+            if (currentPlayIndex < myContentEpisodeItemListModel.list.count-1) {
+                currentPlayIndex++;
+                if (currentPlayIndex>=0 && currentPlayIndex <myContentEpisodeItemListModel.list.count) {
+                    ContentItem* tempContentItem = [myContentEpisodeItemListModel.list objectAtIndex:currentPlayIndex];
+                    videoName = tempContentItem.contentTitle;
+                    contentGuid = tempContentItem.contentGuid;
+                    startTime = 0;
+                    if ([AppDelegate App].myUserLoginMode.token) {
+                        [HttpRequest ProductPlayRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+                    }else{
+                        [HttpRequest ProductPlayRequestToken:[AppDelegate App].myAnonymousLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+                    }
+
+                }
             }
         }
-        if ([AppDelegate App].myUserLoginMode.token) {
-            NSString* preferenceKey = [NSString stringWithFormat:@"episode.%@",_episodeGuid];
-            NSString* preferenceValue = [NSString stringWithFormat:@"%d.%d",currentPlayIndex+1,startTime];
-            [self showPlayRecordWithValue:preferenceValue];
+    
+        NSString* preferenceKey = [NSString stringWithFormat:@"episode.%@.%@",_episodeGuid,currentLang];
+        NSString* preferenceValue = [NSString stringWithFormat:@"%d.%d",currentPlayIndex+1,startTime];
+        [self showPlayRecordWithValue:preferenceValue];
+         if ([AppDelegate App].myUserLoginMode.token) {
             [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey:preferenceKey preferenceValue:preferenceValue delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-        }
+         }else{
+             [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myAnonymousLoginMode.token preferenceKey:preferenceKey preferenceValue:preferenceValue delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+         }
     }else if(callBackEventType == PlayerUserExited){
+        NSLog(@"callBackInfo=%@",callBackInfo);
+        int playTime = [[callBackInfo objectForKey:@"time"]intValue];
+        NSString* preferenceKey = [NSString stringWithFormat:@"episode.%@.%@",_episodeGuid,currentLang];
+        NSString* preferenceValue = [NSString stringWithFormat:@"%d.%d",currentPlayIndex+1,playTime];
+        [self showPlayRecordWithValue:preferenceValue];
         if ([AppDelegate App].myUserLoginMode.token) {
-            NSLog(@"callBackInfo=%@",callBackInfo);
-            int playTime = [[callBackInfo objectForKey:@"time"]intValue];
-            NSString* preferenceKey = [NSString stringWithFormat:@"episode.%@",_episodeGuid];
-            NSString* preferenceValue = [NSString stringWithFormat:@"%d.%d",currentPlayIndex+1,playTime];
-            [self showPlayRecordWithValue:preferenceValue];
             [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey:preferenceKey preferenceValue:preferenceValue delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-            NSString* preferenceKey1 = [NSString stringWithFormat:@"play.positon.%@",contentGuid];
-            NSString* preferenceValue1 = [NSString stringWithFormat:@"%d",playTime];
-            [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey:preferenceKey1 preferenceValue:preferenceValue1 delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+        }else{
+            [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myAnonymousLoginMode.token preferenceKey:preferenceKey preferenceValue:preferenceValue delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
         }
-
     }else if(callBackEventType == PlayerWillReturnFromDMRPlay)
     {
         [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterExitFromDMC object:@"YES"];
@@ -354,11 +445,15 @@
     if (alertView.tag==110) {
         if (buttonIndex==1) {
             //进入购买页面
-            PurchaseAndRechargeManagerController* purchaseController = [[PurchaseAndRechargeManagerController alloc]initWithNibName:nil bundle:nil mode:ProcessModeEnum_Purchase completionHandler:nil];
+            
+            PurchaseCompletionHandler myCallBack = ^{
+                [self playBefoerLoginVideo];
+            };
+            PurchaseAndRechargeManagerController* purchaseController = [[PurchaseAndRechargeManagerController alloc]initWithNibName:nil bundle:nil mode:ProcessModeEnum_Purchase completionHandler:myCallBack];
             
             PopUpViewController* popUpViewController = [[PopUpViewController shareInstance]initWithNibName:@"PopUpViewController" bundle:nil];
             
-            [popUpViewController popViewController:purchaseController fromViewController:self finishViewController:nil];
+            [popUpViewController popViewController:purchaseController fromViewController:self finishViewController:nil blur:YES];
         }
     }
 }
@@ -371,8 +466,15 @@
         historyPlayTime = [[list objectAtIndex:1]intValue];
         NSString* timeText = [NSString stringWithFormat:@"上次观看至第%d集%@",currentPlayIndex+1,[self timeToString:historyPlayTime]];
         _tipsLabel.text=timeText;
+        
+//        [_playButton setTitle:[NSString stringWithFormat:@"第%d集",currentPlayIndex+1] forState:UIControlStateNormal];
+        [_playButton setTitle:@"继续播放" forState:UIControlStateNormal];
         _tipsLabel.hidden = NO;
         _tipsView.hidden = NO;
+    }else{
+        [_playButton setTitle:@"播放" forState:UIControlStateNormal];
+        _tipsLabel.hidden = YES;
+        _tipsView.hidden = YES;
     }
     
 }
@@ -380,24 +482,21 @@
 - (NSString*)timeToString:(NSTimeInterval)time
 {
     int curTime = time;
-    int curhours = curTime/(60*60);
-    int curmin = (curTime%(60*60))/60;//小时取余再除60秒
+//    int curhours = curTime/(60*60);
+    int curmin = (curTime)/60;//小时取余再除60秒
     int cursec = curTime%60;
-    NSString *curStr = [NSString stringWithFormat:@"%d时%d分%d秒",curhours,curmin,cursec];
+//    NSString *curStr = [NSString stringWithFormat:@"%d时%d分%d秒",curhours,curmin,cursec];
+    NSString *curStr = [NSString stringWithFormat:@"%d分%d秒",curmin,cursec];
     
     return curStr;
 }
 
 - (void)refreshAllView
 {
-    if (hadRefreshALL) {
-        [self refreshDownView];
-        return;
-    }
     isExpanded = NO;
     _titleLabel.text = myContentEpisodeItemListModel.episodeTitle;
     _textView.text = myContentEpisodeItemListModel.episodeDescription;
-    _textView.font = [UIFont systemFontOfSize:(iPad?16:12)];
+    _textView.font = [UIFont systemFontOfSize:(iPad?18:12)];
     _headBgView.clipsToBounds = YES;
     _headBgView.layer.masksToBounds = YES;
     if (iPad) {
@@ -411,24 +510,22 @@
     }
 
     _headBgView.layer.borderColor = [Commonality colorFromHexRGB:@"42843d"].CGColor;
-    
-    [_headImage setImageWithURL:[NSURL URLWithString:myContentEpisodeItemListModel.episodeImg] placeholderImage:[UIImage imageNamed:@"240*320.png"]];
     _headImage.layer.masksToBounds = YES;
-    
-//    _totalLabel.text = [NSString stringWithFormat:@"共%d集",myContentEpisodeItemListModel.episodeCount];
-//    [_totalLabel setHidden:YES];
-    _playCountLabel.text = [NSString stringWithFormat:@"播放次数:%d",myContentEpisodeItemListModel.playCount];
-    _collectionCountLabel.text = [NSString stringWithFormat:@"收藏次数:%d",myContentEpisodeItemListModel.favoriteCount];
-
-    favoriteCount = myContentEpisodeItemListModel.favoriteCount;
-    if (myContentEpisodeItemListModel.isCollect == 1) {
-        isCollected = YES;
-    }else{
-        isCollected = NO;
+    if ([currentLang isEqualToString:@"zh-cn"] || !firstShow) {
+        firstShow = YES;
+        [_headImage setImageWithURL:[NSURL URLWithString:myContentEpisodeItemListModel.episodeImg] placeholderImage:[UIImage imageNamed:@"240_320.png"]];
+        _playCountLabel.text = [NSString stringWithFormat:@"%d次",myContentEpisodeItemListModel.playCount];
+        _collectionCountLabel.text = [NSString stringWithFormat:@"%d次",myContentEpisodeItemListModel.favoriteCount];
+        
+        favoriteCount = myContentEpisodeItemListModel.favoriteCount;
+        if (myContentEpisodeItemListModel.isCollect == 1) {
+            isCollected = YES;
+        }else{
+            isCollected = NO;
+        }
+        [self setCollectedButton:isCollected];
     }
-    [self setCollectedButton:isCollected];
     
-    hadRefreshALL = YES;
     [self refreshDownView];
 }
 
@@ -553,38 +650,31 @@
 
     if (sender == _langButton1) {
         if (!_langButton1.isSelected) {
-                [[AppDelegate App]click];
+            
+            [[AppDelegate App]click];
             [_langButton1 setSelected:YES];
             [_langButton2 setSelected:NO];
-            if (_cloudImageView.frame.origin.x > (iPad?58:24)) {
-                if (iPad) {
-                    _cloudImageView.frame = CGRectMake(58, 267, 75, 14);
-                }else{
-                    _cloudImageView.frame = CGRectMake(24, 140, 47, 7);
-                }
-                
-                [myMBProgressHUD show:YES];
-                currentLang = @"zh-cn";
-                [HttpRequest ContentEpisodeItemListRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:_episodeGuid lang:currentLang delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+            [myMBProgressHUD show:YES];
+            currentLang = @"zh-cn";
+            [HttpRequest ContentEpisodeItemListRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:_episodeGuid lang:currentLang delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+            if ([AppDelegate App].myUserLoginMode.token) {
+                NSString* preferenceKey = [NSString stringWithFormat:@"episode.%@.%@",_episodeGuid,currentLang];
+                [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey: preferenceKey preferenceValue:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
             }
-        }
 
+        }
 
     }else if(sender == _langButton2){
         if (!_langButton2.isSelected) {
             [[AppDelegate App]click];
             [_langButton1 setSelected:NO];
             [_langButton2 setSelected:YES];
-            if (_cloudImageView.frame.origin.x < (iPad?172:81)) {
-                if (iPad) {
-                    _cloudImageView.frame = CGRectMake(172, 267, 75, 14);
-                }else{
-                    _cloudImageView.frame = CGRectMake(81, 140, 47, 7);
-                }
-                
-                [myMBProgressHUD show:YES];
-                currentLang = @"en-gb";
-                [HttpRequest ContentEpisodeItemListRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:_episodeGuid lang:currentLang delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+            [myMBProgressHUD show:YES];
+            currentLang = @"en-gb";
+            [HttpRequest ContentEpisodeItemListRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:_episodeGuid lang:currentLang delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+            if ([AppDelegate App].myUserLoginMode.token) {
+                NSString* preferenceKey = [NSString stringWithFormat:@"episode.%@.%@",_episodeGuid,currentLang];
+                [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey: preferenceKey preferenceValue:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
             }
         }
     }
@@ -598,32 +688,20 @@
 
 - (IBAction)playButtonTouch:(UIButton *)sender
 {
-        [[AppDelegate App]click];
-    if ([AppDelegate App].myUserLoginMode.token) {
-        
-        if (currentPlayIndex>=0 && currentPlayIndex <myContentEpisodeItemListModel.list.count) {
-            ContentItem* tempContentItem = [myContentEpisodeItemListModel.list objectAtIndex:currentPlayIndex];
-            [myMBProgressHUD show:YES];
-            videoName = tempContentItem.contentTitle;
-            contentGuid = tempContentItem.contentGuid;
-            NSString* preferenceKey = [NSString stringWithFormat:@"play.positon.%@",contentGuid];
-            [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey:preferenceKey preferenceValue:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-            
-        }
-    }else{
-//        UserLoginViewController* myUserLoginViewController = [[UserLoginViewController alloc]init];
-//        [self.navigationController pushViewController:myUserLoginViewController animated:NO];
-        if (currentPlayIndex>=0 && currentPlayIndex <myContentEpisodeItemListModel.list.count) {
-            ContentItem* tempContentItem = [myContentEpisodeItemListModel.list objectAtIndex:currentPlayIndex];
-            [myMBProgressHUD show:YES];
-            videoName = tempContentItem.contentTitle;
-            contentGuid = tempContentItem.contentGuid;
-//            NSString* preferenceKey = [NSString stringWithFormat:@"play.positon.%@",contentGuid];
-//            [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey:preferenceKey preferenceValue:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+    self.view.userInteractionEnabled = NO;
+    [[AppDelegate App]click];
+    if (currentPlayIndex>=0 && currentPlayIndex <myContentEpisodeItemListModel.list.count) {
+        ContentItem* tempContentItem = [myContentEpisodeItemListModel.list objectAtIndex:currentPlayIndex];
+        [myMBProgressHUD show:YES];
+        videoName = tempContentItem.contentTitle;
+        contentGuid = tempContentItem.contentGuid;
+        startTime = historyPlayTime;
+        if ([AppDelegate App].myUserLoginMode.token) {
+            NSLog(@"1234*********************");
+            [HttpRequest ProductPlayRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+        }else{
             [self anonymousLogin];
-            
         }
-
     }
 }
 
@@ -631,7 +709,7 @@
 {
     [myMBProgressHUD show:YES];
     if ([AppDelegate App].myAnonymousLoginMode.token) {
-        [HttpRequest AppTipsRequestDelegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+        [HttpRequest AppTipsRequestRequestToken:[AppDelegate App].myAnonymousLoginMode.token key:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
     }else{
         [HttpRequest AnonymousLoginDelegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
     }
@@ -639,10 +717,10 @@
 
 - (void)anonymousPlay
 {
+    [giftView setHidden:YES];
     [myMBProgressHUD show:YES];
+    NSLog(@"1233*********************");
     [HttpRequest ProductPlayRequestToken:[AppDelegate App].myAnonymousLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-//    NSString* preferenceKey = [NSString stringWithFormat:@"play.positon.%@",contentGuid];
-//    [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myAnonymousLoginMode.token preferenceKey:preferenceKey preferenceValue:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
 }
 
 
@@ -654,13 +732,13 @@
             isCollected = NO;
             [HttpRequest FavoriteDelByGuidRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:_episodeGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
             [self setCollectedButton:isCollected];
-            _collectionCountLabel.text = [NSString stringWithFormat:@"收藏次数:%d",favoriteCount-1];
+            _collectionCountLabel.text = [NSString stringWithFormat:@"%d次",favoriteCount-1];
             favoriteCount--;
         }else{
             isCollected = YES;
             [HttpRequest FavoriteAddRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:_episodeGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
             [self setCollectedButton:isCollected];
-            _collectionCountLabel.text = [NSString stringWithFormat:@"收藏次数:%d",favoriteCount+1];
+            _collectionCountLabel.text = [NSString stringWithFormat:@"%d次",favoriteCount+1];
             favoriteCount++;
         }
     }else{
@@ -671,6 +749,7 @@
 
 - (void)enterLoginView:(ActionState)state
 {
+    self.view.userInteractionEnabled = YES;
     UserLoginViewController* myUserLoginViewController = [[UserLoginViewController alloc]init];
     myUserLoginViewController.myActionState = state;
     [self.navigationController pushViewController:myUserLoginViewController animated:NO];
@@ -688,6 +767,7 @@
 - (IBAction)closeButtonTouch:(UIButton *)sender
 {
         [[AppDelegate App]click];
+    [[NSNotificationCenter defaultCenter]removeObserver:self name:NSNotificationCenterAfterLoginInSuccess object:nil];
     [self.navigationController popViewControllerAnimated:NO];
 }
 
@@ -735,12 +815,11 @@
         button.exclusiveTouch = YES;
         if (iPad) {
             [button.titleLabel setFont:[UIFont boldSystemFontOfSize:15]];
-            button.frame = CGRectMake(0, 0, 160, 50);
+            button.frame = CGRectMake(0, 0, 156, 50);
         }else{
             [button.titleLabel setFont:[UIFont boldSystemFontOfSize:10]];
             button.frame = CGRectMake(0, 0, 80, 25);
         }
-        
         button.tag = 501;
         [cell addSubview:button];
         button.userInteractionEnabled = NO;
@@ -754,30 +833,39 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-        [[AppDelegate App]click];
-    if ([AppDelegate App].myUserLoginMode.token) {
-        currentPlayIndex = (selectedButton.tag-1000)*12+indexPath.row;
-        if (currentPlayIndex>=0 && currentPlayIndex <myContentEpisodeItemListModel.list.count) {
-            ContentItem* tempContentItem = [myContentEpisodeItemListModel.list objectAtIndex:currentPlayIndex];
-            [myMBProgressHUD show:YES];
-            videoName = tempContentItem.contentTitle;
-            contentGuid = tempContentItem.contentGuid;
-            NSString* preferenceKey = [NSString stringWithFormat:@"play.positon.%@",contentGuid];
-            [HttpRequest UserPreferenceRequestToken:[AppDelegate App].myUserLoginMode.token preferenceKey:preferenceKey preferenceValue:nil delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
-            
-        }
+    self.view.userInteractionEnabled = NO;
+    [[AppDelegate App]click];
+    
+    if (currentPlayIndex == (selectedButton.tag-1000)*12+indexPath.row) {
+        startTime = historyPlayTime;
     }else{
-//        UserLoginViewController* myUserLoginViewController = [[UserLoginViewController alloc]init];
-//        [self.navigationController pushViewController:myUserLoginViewController animated:NO];
-
-        currentPlayIndex = (selectedButton.tag-1000)*12+indexPath.row;
-        if (currentPlayIndex>=0 && currentPlayIndex <myContentEpisodeItemListModel.list.count) {
-            ContentItem* tempContentItem = [myContentEpisodeItemListModel.list objectAtIndex:currentPlayIndex];
-            [myMBProgressHUD show:YES];
-            videoName = tempContentItem.contentTitle;
-            contentGuid = tempContentItem.contentGuid;
+        startTime = 0;
+    }
+    currentPlayIndex = (selectedButton.tag-1000)*12+indexPath.row;
+    if (currentPlayIndex>=0 && currentPlayIndex <myContentEpisodeItemListModel.list.count) {
+        ContentItem* tempContentItem = [myContentEpisodeItemListModel.list objectAtIndex:currentPlayIndex];
+        [myMBProgressHUD show:YES];
+        videoName = tempContentItem.contentTitle;
+        contentGuid = tempContentItem.contentGuid;
+        if ([AppDelegate App].myUserLoginMode.token) {
+            NSLog(@"1232*********************");
+            [HttpRequest ProductPlayRequestToken:[AppDelegate App].myUserLoginMode.token contentGuid:contentGuid delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+        }else{
             [self anonymousLogin];
         }
+
+        
     }
+}
+- (void)collectionView:(UICollectionView *)collectionView didHighlightItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    UIButton* tempButton = (UIButton*)[[collectionView cellForItemAtIndexPath:indexPath]viewWithTag:501];
+    [tempButton setHighlighted:YES];
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didUnhighlightItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    UIButton* tempButton = (UIButton*)[[collectionView cellForItemAtIndexPath:indexPath]viewWithTag:501];
+    [tempButton setHighlighted:NO];
 }
 @end

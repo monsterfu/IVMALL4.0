@@ -76,11 +76,14 @@
     [self.view addSubview:myMBProgressHUD];
     
     
-    _lowLabel.layer.cornerRadius = 10;
-    _midLabel.layer.cornerRadius = 10;
-    _highLabel.layer.cornerRadius = 10;
+    _lowLabel.layer.cornerRadius = (iPad?10:5);
+    _midLabel.layer.cornerRadius = (iPad?10:5);
+    _highLabel.layer.cornerRadius = (iPad?10:5);
+    _lowLabel.font = [UIFont systemFontOfSize:(iPad?16:12)];
+    _midLabel.font = [UIFont systemFontOfSize:(iPad?16:12)];
+    _highLabel.font = [UIFont systemFontOfSize:(iPad?16:12)];
     
-    [_bgView setContentSize:CGSizeMake((iPad?760:380), (iPad?1200:600))];
+    [_bgView setContentSize:CGSizeMake((iPad?760:380), (iPad?800:450))];
     _bgView.delegate = self;
     _bgView.pagingEnabled = NO;
     _bgView.showsHorizontalScrollIndicator = NO;
@@ -99,7 +102,13 @@
     if (!iPad) {
         _closeBtn.frame = CGRectMake((iPhone5?89:46), 32, 30, 30);
     }
-    
+    if ([self.navigationController childViewControllers].count >2) {
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-18.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-19.png"] forState:UIControlStateHighlighted];
+    }else{
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close_sel.png"] forState:UIControlStateHighlighted];
+    }
     
     
 }
@@ -240,6 +249,7 @@
         return;
     }
     [[AppDelegate App]click];
+    [self.view endEditing:YES];
     if (_userName.text.length == 0) {
         [_userName showWithError:@"手机号码不能为空哦!"];
         return;
@@ -355,6 +365,9 @@
                 [Commonality showErrorMsg:self.view type:0 msg:@"该手机号码已注册过哦！"];
                 [myMBProgressHUD hide:YES];
                 
+            }else if(tempNoDataModel.errorCode == 232 || tempNoDataModel.errorCode == 233 || tempNoDataModel.errorCode == 234){
+                [Commonality showErrorMsg:self.view type:0 msg:tempNoDataModel.errorMessage];
+                [myMBProgressHUD hide:YES];
             }else{
                 myMBProgressHUD.labelText = @"已请求验证码，请留意短信";
                 [myMBProgressHUD show:YES];
@@ -372,25 +385,72 @@
             [myMBProgressHUD hide:YES];
             UserRegisterModel* temp = [[UserRegisterModel alloc]initWithDictionary:dictionary];
             if (temp.result == 0) {
+                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                [userDefaults setObject:_userName.text forKey:@"mobile"];
+                [userDefaults setObject:md5PassWord forKey:@"password"];
+                [userDefaults setObject:_password.text forKey:@"password2"];
+                [userDefaults synchronize];
                 if (_isFromLoginView) {
-                    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-                    [userDefaults setObject:_userName.text forKey:@"mobile"];
-                    [userDefaults setObject:md5PassWord forKey:@"password"];
-                    [userDefaults setObject:_password.text forKey:@"password2"];
-                    [userDefaults synchronize];
                     [_registerSucessView setHidden:NO];
                     [self performSelector:@selector(registerSuccess) withObject:nil afterDelay:2.0];
                 }else{
                     [Commonality showErrorMsg:self.view type:0 msg:@"注册成功！"];
-                    [self.navigationController popViewControllerAnimated:NO];
+//                    [self.navigationController popViewControllerAnimated:NO];
+                    [self performSelector:@selector(sleepThread) withObject:nil afterDelay:3.0];
+//                    NSUserDefaults *userDefaultes = [NSUserDefaults standardUserDefaults];
+//                    NSString* mobile = [userDefaultes stringForKey:@"mobile"];
+//                    NSString* password = [userDefaultes stringForKey:@"password"];
+//                    if (![Commonality isEmpty:mobile]&&![Commonality isEmpty:password]) {
+//                        [HttpRequest UserLoginRequestMobile:mobile password:password delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+//                    }
                 }
             }else{
                 [Commonality showErrorMsg:self.view type:0 msg:temp.errorMessage];
             }
+        }else if (request.tag == USER_LOGIN_TYPE) {
+            [myMBProgressHUD hide:YES];
+            [AppDelegate App].myUserLoginMode = [[UserLoginModel alloc]initWithDictionary:dictionary];
+            if ([AppDelegate App].myUserLoginMode.errorCode == 0) {
+                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                [userDefaults setObject:_userName.text forKey:@"mobile"];
+                [userDefaults setObject:md5PassWord forKey:@"password"];
+                [userDefaults setObject:_password.text forKey:@"password2"];
+                [userDefaults synchronize];
+                [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterLoginInSuccess object:nil];
+                [HttpRequest UserDetailRequestToken:[AppDelegate App].myUserLoginMode.token delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+                [HttpRequest DevicesBindRequestToken:[AppDelegate App].myUserLoginMode.token delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+//                [self afterLoginSucces];
+                [self.navigationController popViewControllerAnimated:NO];
+            }else{
+                [Commonality showErrorMsg:self.view type:0 msg:[AppDelegate App].myUserLoginMode.errorMessage];
+            }
+            
+        }else if (request.tag == USER_DETAIL_TYPE)
+        {
+            [AppDelegate App].UserInfo = [[UserDetailMode alloc]initWithDictionary:dictionary];
+            if ([AppDelegate App].UserInfo.errorCode == 0) {
+                [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterUserInfo object:nil];
+                if (![Commonality isEmpty:[AppDelegate App].UserInfo.userImg]) {
+                    [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterUserImage object:[AppDelegate App].UserInfo.userImg];
+                }
+                
+            }
         }
+
     }
     
 }
+
+- (void)sleepThread
+{
+    NSUserDefaults *userDefaultes = [NSUserDefaults standardUserDefaults];
+    NSString* mobile = [userDefaultes stringForKey:@"mobile"];
+    NSString* password = [userDefaultes stringForKey:@"password"];
+    if (![Commonality isEmpty:mobile]&&![Commonality isEmpty:password]) {
+        [HttpRequest UserLoginRequestMobile:mobile password:password delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
+    }
+}
+
 
 - (void)registerSuccess
 {

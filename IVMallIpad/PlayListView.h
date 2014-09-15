@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "IndexFeaturedHomeView.h"
-@interface PlayListView : UIView<UIScrollViewDelegate,PlayerCallBackDelegate,UIGestureRecognizerDelegate>
+@interface PlayListView : UIView<UIScrollViewDelegate,/*PlayerCallBackDelegate,*/UIGestureRecognizerDelegate>
 @property (nonatomic,assign)id<MainViewDelegate> delegate;
 -(void)show;
 @end

@@ -35,6 +35,7 @@
     [[NSRunLoop currentRunLoop]addTimer:_outTimer forMode:NSRunLoopCommonModes];
     [[NSRunLoop currentRunLoop]addTimer:_checkTimer forMode:NSRunLoopCommonModes];
     [_imgeView setHidden:YES];
+    [_activityIndicatorView startAnimating];
 }
 
 -(void)viewDidDisappear:(BOOL)animated
@@ -95,7 +96,11 @@
         if (request.tag == TWODIMENSION_CODE_TYPE)
         {
             _twoDimensionModel = [[AppTwoDimensionPayModel alloc]initWithDictionary:dictionary];
-            [_imgeView setImageWithURL:[NSURL URLWithString:_twoDimensionModel.qrcodeImgURL]];
+            [_imgeView setImageWithURL:[NSURL URLWithString:_twoDimensionModel.qrcodeImgURL] placeholderImage:nil success:^(UIImage* image){
+                [_activityIndicatorView stopAnimating];
+            } failure:^(NSError* error){
+                
+            }];
             [_imgeView setHidden:NO];
         }else if(request.tag == ALIPAY_QRCODETRADERESULT_TYPE)
         {
@@ -106,6 +111,7 @@
                 lm.points = _tradeResultModel.points;
                 if (self.delegate&&[self.delegate respondsToSelector:@selector(twoDimensionDetailViewPaySuccess:)]){
                     [self.delegate twoDimensionDetailViewPaySuccess:lm];
+                    [[NSNotificationCenter defaultCenter]postNotificationName:NSNotificationCenterPurchaseSuccessViewJump object:nil];
                     [_checkTimer invalidate];
                     [_outTimer invalidate];
                 }

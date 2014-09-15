@@ -26,6 +26,7 @@
 @property(nonatomic,assign)int episodeCount;
 @property(nonatomic,strong)NSString* liveSubhead;
 @property(nonatomic,assign)int isCollect;
+@property(nonatomic,strong)NSString* langs;
 - (id)initWithDictionary:(NSDictionary *)dictionary;
 @end
 

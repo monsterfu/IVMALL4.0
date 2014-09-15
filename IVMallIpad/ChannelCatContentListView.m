@@ -111,6 +111,7 @@
                     [self makeContentView:0];
                     if ([self.delegate pageState] == PAGE_CATEGORY) {
                         [self.delegate hideBottomView];
+                        [self.delegate hideNotWifiView];
                         [self setHidden:NO];
                     }
                 }
@@ -271,6 +272,7 @@
             ContentEpisodeItemListViewController* myContentEpisodeItemListViewController = [[ContentEpisodeItemListViewController alloc]init];
             myContentEpisodeItemListViewController.episodeGuid = tempContentMode.contentGuid;
             myContentEpisodeItemListViewController.langs = tempContentMode.langs;
+            myContentEpisodeItemListViewController.latestPlayLang = nil;
             if (self && self.delegate) {
                 [[self.delegate getNavigation] pushViewController:myContentEpisodeItemListViewController animated:NO];
             }
@@ -289,6 +291,7 @@
                 ContentEpisodeItemListViewController* myContentEpisodeItemListViewController = [[ContentEpisodeItemListViewController alloc]init];
                 myContentEpisodeItemListViewController.episodeGuid = tempContentMode.contentGuid;
                 myContentEpisodeItemListViewController.langs = tempContentMode.langs;
+                myContentEpisodeItemListViewController.latestPlayLang = nil;
                 if (self && self.delegate) {
                     [[self.delegate getNavigation] pushViewController:myContentEpisodeItemListViewController animated:NO];
                 }

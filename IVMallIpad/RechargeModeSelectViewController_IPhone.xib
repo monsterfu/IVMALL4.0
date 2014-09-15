@@ -44,22 +44,27 @@
                                 <action selector="twoDimensionButtonTouch:" destination="-1" eventType="touchUpInside" id="eWf-8D-R2q"/>
                             </connections>
                         </button>
-                        <button opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="wDb-tf-1Yv">
+                        <button opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="wDb-tf-1Yv">
                             <rect key="frame" x="265" y="128" width="100" height="66"/>
                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                             <fontDescription key="fontDescription" type="system" pointSize="9"/>
                             <inset key="titleEdgeInsets" minX="-70" minY="40" maxX="0.0" maxY="0.0"/>
                             <inset key="imageEdgeInsets" minX="30" minY="0.0" maxX="20" maxY="10"/>
-                            <state key="normal" title="用微信支付(暂未开通)" image="weixin.png" backgroundImage="pay_05.png">
-                                <color key="titleColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                            <state key="normal" title="用微信支付" image="weixin.png" backgroundImage="pay_05.png">
+                                <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                             </state>
                             <state key="selected" image="weixin2.png" backgroundImage="pay_03.png">
                                 <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="titleShadowColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                             </state>
-                            <state key="highlighted" backgroundImage="button_g1.png">
+                            <state key="highlighted" backgroundImage="pay_03.png">
                                 <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="titleShadowColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                             </state>
+                            <connections>
+                                <action selector="weixinButtonTouch:" destination="-1" eventType="touchUpInside" id="deP-3i-kFG"/>
+                            </connections>
                         </button>
                         <button opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="lcm-Ph-Jfu">
                             <rect key="frame" x="142" y="128" width="100" height="66"/>
@@ -111,7 +116,7 @@
                         <action selector="backButtonTouch:" destination="-1" eventType="touchUpInside" id="lfX-sU-dYi"/>
                     </connections>
                 </button>
-                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.80000001192092896" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="选择充值方式" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="VYh-7b-E9y">
+                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.80000001192092896" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="选择付款方式" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="VYh-7b-E9y">
                     <rect key="frame" x="200" y="42" width="165" height="20"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -137,7 +142,6 @@
         </view>
     </objects>
     <resources>
-        <image name="button_g1.png" width="329" height="88"/>
         <image name="code.png" width="75" height="75"/>
         <image name="code2.png" width="75" height="75"/>
         <image name="icon_07-19.png" width="110" height="110"/>

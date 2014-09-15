@@ -18,7 +18,9 @@
         if (_errorCode==0) {
             NSDictionary* data = [dictionary objectForKey:@"data"];
             if (data) {
-                _anonymousTips  = [data objectForKey:@"anonymous.login.tips"];
+                _anonymousTips  =   [data objectForKey:@"anonymous.login.tips"];
+                _vipExpiryTime  =   [data objectForKey:@"vipExpiryTime"];
+                _currentTime    =   [data objectForKey:@"currentTime"];
 
             }
         }

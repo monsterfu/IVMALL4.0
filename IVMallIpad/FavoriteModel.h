@@ -26,7 +26,6 @@
 @property (nonatomic,strong) NSString* favID;
 @property (nonatomic,strong) NSString* lang;
 
-
 @property (nonatomic,copy)NSString* contentDesc;//视频专用
 
 - (id)initWithDictionary:(NSDictionary *)dictionary modelList:(NSMutableArray*)mList page:(int)page;

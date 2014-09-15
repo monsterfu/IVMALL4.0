@@ -15,4 +15,12 @@
     #import <Foundation/Foundation.h>
 #endif
 
-#define NSLog(...) {}
+#if 1//def DEBUG
+#define NSLog(...) NSLog(__VA_ARGS__)
+#define debugMethod() NSLog(@"%s", __func__)
+#define NSLogAny(...) NSLog(__VA_ARGS__)
+#else
+#define NSLogAny(...) NSLog(__VA_ARGS__)
+#define NSLog(...)
+#define debugMethod()
+#endif

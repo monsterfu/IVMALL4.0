@@ -23,6 +23,7 @@
 
 enum{
 	PlayVideo=0,
+    IndexPlayVideo=1,
 	EnterPerson,
     EnterPlayList,
     UnKnownAction,

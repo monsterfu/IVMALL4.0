@@ -17,6 +17,11 @@
     ZBarReaderView *myreaderView;
     UIImageView *imageView;
     NSURLConnection* aSynConnection;
+    
+    BOOL upOrDown;
+    UIView* orginLine;
+    
+    NSTimer * scanTimer;
 }
 
 @end
@@ -40,12 +45,16 @@
 {
     [super viewDidLoad];
     
+    upOrDown = NO;
+    orginLine = [[UIView alloc]initWithFrame:CGRectMake(0, (iPad?548:260), _bgView.frame.size.width, 2)];
+    orginLine.backgroundColor = [UIColor redColor];
+    [_bgView addSubview:orginLine];
+    
     myreaderView = [[ZBarReaderView alloc]init];
     CGRect tempRect;
     if (iPad) {
         tempRect = CGRectMake(0, 0, 760, 548);
 //        tempRect = CGRectMake(200, 100, 200, 200);
-        
     }else{
         tempRect = CGRectMake(0, 0, 385, 260);
     }
@@ -77,13 +86,24 @@
     label.textColor = [UIColor whiteColor];
     [_bgView addSubview:label];
 
+    [_bgView bringSubviewToFront:orginLine];
     
+
+    scanTimer = [NSTimer scheduledTimerWithTimeInterval:2 target:self selector:@selector(moveLine) userInfo:nil repeats:YES];
+    [scanTimer fire];
     // Do any additional setup after loading the view from its nib.
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [myreaderView start];
+    
+    
+    [scanTimer setFireDate:[NSDate date]];
+}
+-(void)viewDidDisappear:(BOOL)animated
+{
+    [scanTimer setFireDate:[NSDate distantFuture]];
 }
 
 -(void)viewWillAppear:(BOOL)animated
@@ -92,6 +112,13 @@
         _closeBtn.frame = CGRectMake((iPhone5?89:46), 32, 30, 30);
     }
     [self.view bringSubviewToFront:_closeBtn];
+    if ([self.navigationController childViewControllers].count >2) {
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-18.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-19.png"] forState:UIControlStateHighlighted];
+    }else{
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close_sel.png"] forState:UIControlStateHighlighted];
+    }
 }
 
 
@@ -102,7 +129,9 @@
         if ([symbol.data rangeOfString:@"drmid="].location != NSNotFound) {
             NSString* drmId = [self drmIdGet:symbol.data];
             [self sendMsg:drmId];
-            [readerView stop];
+//            [readerView stop];
+            [self.navigationController popViewControllerAnimated:NO];
+            
         }else{
             if ([symbol.data hasPrefix:@"http://"] || [symbol.data hasPrefix:@"https://"]) {
                 UIAlertView* alertView = [[UIAlertView alloc]initWithTitle:@"是否打开链接？" message:symbol.data delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
@@ -187,4 +216,67 @@
             [[AppDelegate App]click];
     [self.navigationController popViewControllerAnimated:NO];
 }
+
+#pragma mark 初始化扫描界面
+-(void)lineAnimation:(NSTimer*)timer
+{
+    const CGFloat yOffset = 8;
+    if (upOrDown){
+        CGRect lineFrame = orginLine.frame;
+        CGRect bgFrame = _bgView.frame;
+        lineFrame.origin.y -= 2;
+        orginLine.frame = lineFrame;
+        lineFrame = orginLine.frame;
+        if (lineFrame.origin.y - yOffset < bgFrame.origin.y)
+            upOrDown = !upOrDown;
+    } else {
+        CGRect lineFrame = CGRectMake(0, 0, _bgView.frame.size.width, 3);
+        CGRect bgFrame = _bgView.frame;
+        lineFrame.origin.y += 2;
+        orginLine.frame = lineFrame;
+        lineFrame = orginLine.frame;
+        if (lineFrame.origin.y + yOffset> bgFrame.origin.y + bgFrame.size.height)
+            upOrDown = !upOrDown;
+    }
+}
+
+//屏幕移动扫描线。
+
+-(void)moveLine{
+    
+    CGRect lineFrame = orginLine.frame;
+    
+    CGFloat y = lineFrame.origin.y;
+    
+    if (!upOrDown) {
+        
+        upOrDown = YES;
+        
+        y = y - (iPad?548:260);
+        
+        lineFrame.origin.y = y;
+        
+        [UIView animateWithDuration:2 animations:^{
+            
+            orginLine.frame = lineFrame;
+            
+        }];
+        
+    }else if(upOrDown){
+        
+        upOrDown = NO;
+        
+        y = y + (iPad?548:260);
+        
+        lineFrame.origin.y = y;
+        
+        [UIView animateWithDuration:2 animations:^{
+            
+            orginLine.frame = lineFrame;
+            
+        }];
+    }
+}
+
+
 @end

@@ -47,7 +47,7 @@
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSNotificationCenterUserBalanceChange object:nil];
+//    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSNotificationCenterUserBalanceChange object:nil];
 }
 - (void)viewDidLoad
 {
@@ -104,11 +104,20 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    [super viewWillAppear:animated];
     if (!iPad) {
         _closeBtn.frame = CGRectMake((iPhone5?89:46), 32, 30, 30);
     }
 //    [self.view bringSubviewToFront:_closeBtn];
-    [super viewWillAppear:animated];
+    
+    if ([self.navigationController childViewControllers].count >2) {
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-18.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"icon_07-19.png"] forState:UIControlStateHighlighted];
+    }else{
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close.png"] forState:UIControlStateNormal];
+        [_closeBtn setBackgroundImage:[UIImage imageNamed:@"close_sel.png"] forState:UIControlStateHighlighted];
+    }
+
     [HttpRequest UserBalanceRequestToken:[AppDelegate App].myUserLoginMode.token delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];
 }
 #pragma mark - 刷新的代理方法---进入下拉刷新\上拉加载更多都有可能调用这个方法
@@ -300,7 +309,12 @@
             }
         }else{
             [AllNotWifiView setHidden:NO];
-            [_bgView setBackgroundColor:[Commonality colorFromHexRGB:@"eeeeee"]];
+            if (iPad) {
+                [_bgView setBackgroundColor:[Commonality colorFromHexRGB:@"eeeeee"]];
+            }else{
+                [_upView setBackgroundColor:[Commonality colorFromHexRGB:@"eeeeee"]];
+            }
+            
         }
     }
 }
@@ -323,7 +337,11 @@
                 }
             }else{
                 [AllNotWifiView setHidden:NO];
-                [_bgView setBackgroundColor:[Commonality colorFromHexRGB:@"eeeeee"]];
+                if (iPad) {
+                    [_bgView setBackgroundColor:[Commonality colorFromHexRGB:@"eeeeee"]];
+                }else{
+                    [_upView setBackgroundColor:[Commonality colorFromHexRGB:@"eeeeee"]];
+                }
             }
         }
     }else{
@@ -335,7 +353,11 @@
             }else{
                 [Commonality showErrorMsg:self.view type:0 msg:tempUserBalanceModel.errorMessage];
                 [AllNotWifiView setHidden:NO];
-                [_bgView setBackgroundColor:[Commonality colorFromHexRGB:@"eeeeee"]];
+                if (iPad) {
+                    [_bgView setBackgroundColor:[Commonality colorFromHexRGB:@"eeeeee"]];
+                }else{
+                    [_upView setBackgroundColor:[Commonality colorFromHexRGB:@"eeeeee"]];
+                }
             }
         }else if((request.tag%PAGESECTION) == PAY_LIST_TYPE)
         {
@@ -399,12 +421,13 @@
     
     PopUpViewController* popUpViewController = [[PopUpViewController shareInstance]initWithNibName:@"PopUpViewController" bundle:nil];
     
-    [popUpViewController popViewController:purchaseController fromViewController:self finishViewController:nil];
+    [popUpViewController popViewController:purchaseController fromViewController:self finishViewController:nil blur:NO];
 }
 
 - (IBAction)closeButtonTouch:(UIButton *)sender
 {
         [[AppDelegate App]click];
+     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSNotificationCenterUserBalanceChange object:nil];
     [self.navigationController popViewControllerAnimated:NO];
 }
 
@@ -422,6 +445,7 @@
             [_bgView setBackgroundColor:[Commonality colorFromHexRGB:@"f1ffe5"]];
         }else{
             [_bgView setBackgroundColor:[UIColor whiteColor]];
+            [_upView setBackgroundColor:[Commonality colorFromHexRGB:@"f1ffe5"]];
         }
          [myMBprogressHUD show:YES];
             [HttpRequest UserBalanceRequestToken:[AppDelegate App].myUserLoginMode.token delegate:self finishSel:@selector(GetResult:) failSel:@selector(GetErr:)];

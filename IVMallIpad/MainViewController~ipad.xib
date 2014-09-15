@@ -7,13 +7,12 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MainViewController">
             <connections>
-                <outlet property="PersonalCenterButton" destination="M9W-cD-jVJ" id="kdk-rY-a0m"/>
-                <outlet property="PlayRecordButton" destination="WmF-ZG-Bg5" id="CzK-EY-MaH"/>
                 <outlet property="SortScrollView" destination="uMv-7g-r2F" id="3Zg-hQ-XJh"/>
-                <outlet property="UserDefinedPhotoImageView" destination="YZZ-Pt-KQm" id="fAU-BK-byX"/>
+                <outlet property="UserDefinedPhotoImageView" destination="u0Q-ie-Yx8" id="mmb-hm-T7N"/>
                 <outlet property="WifiSetupButton" destination="CHX-Sm-bJW" id="Cef-Wl-wmR"/>
-                <outlet property="blurImage" destination="SlE-hh-QvA" id="Rw9-a3-S43"/>
+                <outlet property="categoryListButton" destination="B6T-3c-GOr" id="5Dg-0w-EW3"/>
                 <outlet property="myBackgroundImageView" destination="wDd-Rr-vSU" id="efq-ga-0C1"/>
+                <outlet property="personalCenterButton" destination="aBh-ht-PwU" id="e5O-4P-quy"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="bpi-b4-euR"/>
             </connections>
         </placeholder>
@@ -22,16 +21,25 @@
             <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="bg.png" translatesAutoresizingMaskIntoConstraints="NO" id="wDd-Rr-vSU">
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="bg_ipad.png" translatesAutoresizingMaskIntoConstraints="NO" id="wDd-Rr-vSU">
                     <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 </imageView>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="head2.png" translatesAutoresizingMaskIntoConstraints="NO" id="YZZ-Pt-KQm">
-                    <rect key="frame" x="20" y="20" width="62" height="62"/>
+                <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="head2.png" translatesAutoresizingMaskIntoConstraints="NO" id="u0Q-ie-Yx8">
+                    <rect key="frame" x="22" y="20" width="62" height="62"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </imageView>
+                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aBh-ht-PwU">
+                    <rect key="frame" x="15" y="13" width="75" height="75"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <state key="normal" backgroundImage="weixuanzhong.png">
+                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                    <state key="disabled" backgroundImage="xuanzhong.png"/>
+                    <state key="highlighted" backgroundImage="xuanzhong.png"/>
+                </button>
                 <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uMv-7g-r2F">
-                    <rect key="frame" x="120" y="20" width="677" height="43"/>
+                    <rect key="frame" x="120" y="20" width="840" height="43"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     <inset key="scrollIndicatorInsets" minX="2" minY="0.0" maxX="0.0" maxY="0.0"/>
@@ -39,30 +47,17 @@
                         <outlet property="delegate" destination="-1" id="2YB-xO-gzI"/>
                     </connections>
                 </scrollView>
-                <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="fenlei_bg.png" translatesAutoresizingMaskIntoConstraints="NO" id="SlE-hh-QvA">
-                    <rect key="frame" x="754" y="20" width="43" height="43"/>
+                <button hidden="YES" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="B6T-3c-GOr">
+                    <rect key="frame" x="900" y="14" width="54" height="54"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                </imageView>
-                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="M9W-cD-jVJ">
-                    <rect key="frame" x="856" y="20" width="35" height="35"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <state key="normal" backgroundImage="individual.png">
+                    <state key="normal" backgroundImage="fenlei.png">
                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
-                    <state key="disabled" backgroundImage="individual2.png"/>
-                    <state key="highlighted" backgroundImage="individual2.png"/>
-                </button>
-                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WmF-ZG-Bg5">
-                    <rect key="frame" x="916" y="20" width="35" height="35"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <state key="normal" backgroundImage="historical.png">
-                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <state key="disabled" backgroundImage="historical2.png"/>
-                    <state key="highlighted" backgroundImage="historical2.png"/>
+                    <state key="disabled" backgroundImage="Remote2.png"/>
+                    <state key="highlighted" backgroundImage="fenlei2.png"/>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CHX-Sm-bJW">
-                    <rect key="frame" x="976" y="20" width="35" height="35"/>
+                    <rect key="frame" x="976" y="24" width="35" height="35"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <state key="normal" backgroundImage="Remote.png">
                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
@@ -78,12 +73,11 @@
     <resources>
         <image name="Remote.png" width="70" height="70"/>
         <image name="Remote2.png" width="70" height="70"/>
-        <image name="bg.png" width="2048" height="1536"/>
-        <image name="fenlei_bg.png" width="123" height="122"/>
+        <image name="bg_ipad.png" width="2048" height="1536"/>
+        <image name="fenlei.png" width="107" height="107"/>
+        <image name="fenlei2.png" width="107" height="107"/>
         <image name="head2.png" width="123" height="123"/>
-        <image name="historical.png" width="70" height="70"/>
-        <image name="historical2.png" width="70" height="70"/>
-        <image name="individual.png" width="70" height="70"/>
-        <image name="individual2.png" width="70" height="70"/>
+        <image name="weixuanzhong.png" width="149" height="149"/>
+        <image name="xuanzhong.png" width="149" height="149"/>
     </resources>
 </document>
